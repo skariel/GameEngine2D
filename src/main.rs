@@ -21,11 +21,11 @@ fn main() {
         };
 
 
-        mg.print(&t1, 0.0, 0.0, t, 0.5,1.5);
-        mg.print(&t1, 0.0, 0.0, t*0.95, 0.5,1.5);
-        mg.print(&t1, 0.0, 0.0, t*0.9, 0.5,1.5);
-        mg.print(&t1, 0.0, 0.0, t*0.85, 0.5,1.5);
-        mg.print(&t1, 0.0, 0.0, t*0.8, 0.5,1.5);
+        let zoom_x = 1500.0/(mg.window.size_pixels_x as f32);
+        let zoom_y = 1500.0/(mg.window.size_pixels_y as f32);
+        for i in 1..50 {
+            mg.print(&t1, 0.0, 0.0, 3.0*t*(i as f32)/100.0, zoom_x*(i as f32)/50.0,zoom_y*(i as f32)/50.0);
+        }
         mg.flush();
 
         println!("framerate: {}", mg.framerate.get_framerate());

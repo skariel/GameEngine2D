@@ -1,6 +1,7 @@
 extern crate glium;
 
 pub mod mouse;
+pub mod window;
 mod framerate;
 
 use glium::{DisplayBuild, Surface};
@@ -17,6 +18,7 @@ pub struct Mygraphics<'a> {
     pub closed: bool,
     pub framerate: framerate::FrameRate,
     pub mouse: mouse::Mouse,
+    pub window: window::Window,
 }
 
 impl<'a> Mygraphics<'a> {
@@ -46,10 +48,10 @@ impl<'a> Mygraphics<'a> {
                 interpolated_color = color;
                 float cr = cos(r);
                 float sr = sin(r);
-                float px = position[0]*zoom_x;
-                float py = position[1]*zoom_y;
-                float nx = cr*px+sr*py;
-                float ny = -sr*px+cr*py;
+                float px = position[0];
+                float py = position[1];
+                float nx = (cr*px+sr*py)*zoom_x;
+                float ny = (-sr*px+cr*py)*zoom_y;
                 gl_Position = vec4(nx+tx,ny+ty, 0.0, 1.0);
             }
         "#;
@@ -79,6 +81,12 @@ impl<'a> Mygraphics<'a> {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.set_finish().unwrap();
+
+        let (wx, wy) = match display.get_window().unwrap().get_inner_size_pixels() {
+            Some((_x,_y)) => (_x, _y),
+            _ => (1,1),
+        };
+
         Mygraphics {
             display: display,
             indices: indices,
@@ -89,6 +97,10 @@ impl<'a> Mygraphics<'a> {
             closed: false,
             framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
             mouse: mouse::Mouse::new(),
+            window: window::Window{
+                size_pixels_x: wx,
+                size_pixels_y: wy,
+            }
         }
     }
 
@@ -117,8 +129,14 @@ impl<'a> Mygraphics<'a> {
 
         for ev in self.display.poll_events() {
             match ev {
+                glium::glutin::Event::Resized(wx, wy) =>
+                    {
+                        self.mouse.rescale(self.window.size_pixels_x, self.window.size_pixels_y, wx, wy);
+                        self.window.size_pixels_x = wx;
+                        self.window.size_pixels_y = wy;
+                    },
                 glium::glutin::Event::Closed => self.closed = true,
-                glium::glutin::Event::MouseMoved((x,y)) => self.mouse.moved(x,y),
+                glium::glutin::Event::MouseMoved((x,y)) => self.mouse.moved(x,y,self.window.size_pixels_x,self.window.size_pixels_y),
                 glium::glutin::Event::MouseWheel(w) =>
                     match w {
                         glium::glutin::MouseScrollDelta::LineDelta(dx,dy) => self.mouse.wheel(dx,dy),

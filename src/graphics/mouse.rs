@@ -23,10 +23,10 @@ pub enum Button {
 }
 
 pub struct Mouse {
-    pub x: i32,
-    pub y: i32,
-    pub dx: i32,
-    pub dy: i32,
+    pub x: f32,
+    pub y: f32,
+    pub dx: f32,
+    pub dy: f32,
     pub wheelx: f32,
     pub wheely: f32,
     pub dwheelx: f32,
@@ -42,10 +42,10 @@ pub struct Mouse {
 impl Mouse {
     pub fn new() -> Mouse {
         Mouse {
-            x: 0,
-            y: 0,
-            dx: 0,
-            dy: 0,
+            x: 0.0,
+            y: 0.0,
+            dx: 0.0,
+            dy: 0.0,
             wheelx: 0.0,
             wheely: 0.0,
             dwheelx: 0.0,
@@ -63,17 +63,40 @@ impl Mouse {
         self.dleft = DButtonState::Boring;
         self.dright = DButtonState::Boring;
         self.dmiddle = DButtonState::Boring;
-        self.dx = 0;
-        self.dy = 0;
+        self.dx = 0.0;
+        self.dy = 0.0;
         self.dwheelx = 0.0;
         self.dwheely = 0.0;
     }
 
-    pub fn moved(&mut self, x: i32, y:i32) {
-        self.dx = x-self.x;
-        self.x = x;
-        self.dy = y-self.y;
-        self.y = y;
+    pub fn rescale(&mut self, old_window_pixels_x: u32, old_window_pixels_y: u32, new_window_pixels_x: u32, new_window_pixels_y: u32) {
+        let old_fp_x = (old_window_pixels_x as f32)/2.0;
+        let old_fp_y = (old_window_pixels_y as f32)/2.0;
+
+        let new_fp_x = (new_window_pixels_x as f32)/2.0;
+        let new_fp_y = (new_window_pixels_y as f32)/2.0;
+
+        let pixel_x = (self.x+1.0)*old_fp_x;
+        let pixel_y = (self.y+1.0)*old_fp_y;
+
+        let scaled_x = pixel_x/new_fp_x - 1.0;
+        let scaled_y = pixel_y/new_fp_y - 1.0;
+
+        self.dx = scaled_x-self.x;
+        self.x = scaled_x;
+        self.dy = scaled_y-self.y;
+        self.y = scaled_y;
+    }
+
+    pub fn moved(&mut self, x: i32, y:i32, window_pixels_x: u32, window_pixels_y: u32) {
+        let fp_x = (window_pixels_x as f32)/2.0;
+        let fp_y = (window_pixels_y as f32)/2.0;
+        let scaled_x = (x as f32)/fp_x - 1.0;
+        let scaled_y = (y as f32)/fp_y - 1.0;
+        self.dx = scaled_x-self.x;
+        self.x = scaled_x;
+        self.dy = scaled_y-self.y;
+        self.y = scaled_y;
     }
 
     pub fn wheel(&mut self, dx:f32, dy:f32) {
