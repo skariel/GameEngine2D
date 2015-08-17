@@ -53,7 +53,7 @@ impl<'a> Mygraphics<'a> {
                 float py = position[1]*zoom_y;
                 float nx = cr*px+sr*py;
                 float ny = (-sr*px+cr*py)/aspect_ratio_y;
-                gl_Position = vec4(nx+tx,ny+ty, 0.0, 1.0);
+                gl_Position = vec4(nx+tx,ny-ty, 0.0, 1.0);
             }
         "#;
 
