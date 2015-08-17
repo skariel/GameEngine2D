@@ -2,7 +2,7 @@
 extern crate glium;
 extern crate time;
 
-mod graphics;
+pub mod graphics;
 
 use graphics::{Mygraphics, get_triangle};
 
@@ -21,10 +21,9 @@ fn main() {
         };
 
 
-        let zoom_x = 1500.0/(mg.window.size_pixels_x as f32);
-        let zoom_y = 1500.0/(mg.window.size_pixels_y as f32);
+        let zoom = 1500.0/(mg.window.size_pixels_x as f32);
         for i in 1..50 {
-            mg.print(&t1, 0.0, 0.0, 3.0*t*(i as f32)/100.0, zoom_x*(i as f32)/50.0,zoom_y*(i as f32)/50.0);
+            mg.print(&t1, 0.0, 0.0, 3.0*t*(i as f32)/100.0,zoom,zoom);
         }
         mg.flush();
 

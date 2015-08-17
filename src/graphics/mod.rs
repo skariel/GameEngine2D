@@ -2,7 +2,7 @@ extern crate glium;
 
 pub mod mouse;
 pub mod window;
-mod framerate;
+pub mod framerate;
 
 use glium::{DisplayBuild, Surface};
 
@@ -43,15 +43,16 @@ impl<'a> Mygraphics<'a> {
             uniform float r;
             uniform float zoom_x;
             uniform float zoom_y;
+            uniform float aspect_ratio_y;
 
             void main() {
                 interpolated_color = color;
                 float cr = cos(r);
                 float sr = sin(r);
-                float px = position[0];
-                float py = position[1];
-                float nx = (cr*px+sr*py)*zoom_x;
-                float ny = (-sr*px+cr*py)*zoom_y;
+                float px = position[0]*zoom_x;
+                float py = position[1]*zoom_y;
+                float nx = cr*px+sr*py;
+                float ny = (-sr*px+cr*py)/aspect_ratio_y;
                 gl_Position = vec4(nx+tx,ny+ty, 0.0, 1.0);
             }
         "#;
@@ -82,10 +83,7 @@ impl<'a> Mygraphics<'a> {
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.set_finish().unwrap();
 
-        let (wx, wy) = match display.get_window().unwrap().get_inner_size_pixels() {
-            Some((_x,_y)) => (_x, _y),
-            _ => (1,1),
-        };
+        let (wx, wy) = display.get_framebuffer_dimensions();
 
         Mygraphics {
             display: display,
@@ -97,10 +95,7 @@ impl<'a> Mygraphics<'a> {
             closed: false,
             framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
             mouse: mouse::Mouse::new(),
-            window: window::Window{
-                size_pixels_x: wx,
-                size_pixels_y: wy,
-            }
+            window: window::Window::new(wx, wy),
         }
     }
 
@@ -110,12 +105,14 @@ impl<'a> Mygraphics<'a> {
             self.target.clear_color(0.0, 0.0, 0.0, 1.0);
             self.flushed = false;
         }
+
         let uniforms = uniform! {
             tx: tx,
             ty: ty,
             r: r,
             zoom_x: zoom_x,
             zoom_y: zoom_y,
+            aspect_ratio_y: self.window.aspect_ratio_y,
         };
         self.target.draw(shape, &self.indices, &self.program, &uniforms,
                     &self.draw_parameters).unwrap();
@@ -131,12 +128,12 @@ impl<'a> Mygraphics<'a> {
             match ev {
                 glium::glutin::Event::Resized(wx, wy) =>
                     {
-                        self.mouse.rescale(self.window.size_pixels_x, self.window.size_pixels_y, wx, wy);
-                        self.window.size_pixels_x = wx;
-                        self.window.size_pixels_y = wy;
+                        let new_window = window::Window::new(wx, wy);
+                        self.mouse.rescale(&self.window, &new_window);
+                        self.window = new_window;
                     },
                 glium::glutin::Event::Closed => self.closed = true,
-                glium::glutin::Event::MouseMoved((x,y)) => self.mouse.moved(x,y,self.window.size_pixels_x,self.window.size_pixels_y),
+                glium::glutin::Event::MouseMoved((x,y)) => self.mouse.moved(x,y,&self.window),
                 glium::glutin::Event::MouseWheel(w) =>
                     match w {
                         glium::glutin::MouseScrollDelta::LineDelta(dx,dy) => self.mouse.wheel(dx,dy),

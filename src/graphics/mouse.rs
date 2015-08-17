@@ -1,3 +1,5 @@
+use graphics::window::Window;
+
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum ButtonState {
@@ -69,18 +71,18 @@ impl Mouse {
         self.dwheely = 0.0;
     }
 
-    pub fn rescale(&mut self, old_window_pixels_x: u32, old_window_pixels_y: u32, new_window_pixels_x: u32, new_window_pixels_y: u32) {
-        let old_fp_x = (old_window_pixels_x as f32)/2.0;
-        let old_fp_y = (old_window_pixels_y as f32)/2.0;
+    pub fn rescale(&mut self, old_window: &Window, new_window: &Window) {
+        let old_fp_x = (old_window.size_pixels_x as f32)/2.0;
+        let old_fp_y = (old_window.size_pixels_y as f32)/2.0;
 
-        let new_fp_x = (new_window_pixels_x as f32)/2.0;
-        let new_fp_y = (new_window_pixels_y as f32)/2.0;
+        let new_fp_x = (new_window.size_pixels_x as f32)/2.0;
+        let new_fp_y = (new_window.size_pixels_y as f32)/2.0;
 
         let pixel_x = (self.x+1.0)*old_fp_x;
-        let pixel_y = (self.y+1.0)*old_fp_y;
+        let pixel_y = (self.y/old_window.aspect_ratio_y+1.0)*old_fp_y;
 
         let scaled_x = pixel_x/new_fp_x - 1.0;
-        let scaled_y = pixel_y/new_fp_y - 1.0;
+        let scaled_y = (pixel_y/new_fp_y - 1.0)*new_window.aspect_ratio_y;
 
         self.dx = scaled_x-self.x;
         self.x = scaled_x;
@@ -88,11 +90,11 @@ impl Mouse {
         self.y = scaled_y;
     }
 
-    pub fn moved(&mut self, x: i32, y:i32, window_pixels_x: u32, window_pixels_y: u32) {
-        let fp_x = (window_pixels_x as f32)/2.0;
-        let fp_y = (window_pixels_y as f32)/2.0;
+    pub fn moved(&mut self, x: i32, y:i32, window: &Window) {
+        let fp_x = (window.size_pixels_x as f32)/2.0;
+        let fp_y = (window.size_pixels_y as f32)/2.0;
         let scaled_x = (x as f32)/fp_x - 1.0;
-        let scaled_y = (y as f32)/fp_y - 1.0;
+        let scaled_y = ((y as f32)/fp_y - 1.0)*window.aspect_ratio_y;
         self.dx = scaled_x-self.x;
         self.x = scaled_x;
         self.dy = scaled_y-self.y;
