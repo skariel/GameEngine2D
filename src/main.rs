@@ -1,79 +1,38 @@
 #[macro_use]
 extern crate glium;
+extern crate time;
+
+mod graphics;
+
+use graphics::{Mygraphics, get_triangle};
 
 fn main() {
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
 
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
+    let mut mg = Mygraphics::new("My Game!".to_string());
 
-    implement_vertex!(Vertex, position);
+    let mut t = -8.0f32;
 
-    let vertex1 = Vertex { position: [-0.5, -0.5] };
-    let vertex2 = Vertex { position: [ 0.0,  0.5] };
-    let vertex3 = Vertex { position: [ 0.5, -0.25] };
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    let vertex_buffer = glium::VertexBuffer::new(&display, shape);
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-    let vertex_shader_src = r#"
-        #version 140
-
-        in vec2 position;
-
-        uniform mat4 matrix;
-
-        void main() {
-            gl_Position = matrix * vec4(position, 0.0, 1.0);
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 140
-
-        out vec4 color;
-
-        void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    "#;
-
-    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
-
-    let mut t = -0.5;
+    let t1 = get_triangle(&mg);
 
     loop {
-        // we update `t`
-        t += 0.0002;
-        if t > 0.5 {
-            t = -0.5;
-        }
 
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-
-        let uniforms = uniform! {
-            matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [ t , 0.0, 0.0, 1.0],
-            ]
+        if mg.mouse.left != graphics::mouse::ButtonState::Pressed {
+            t += 0.02;
         };
 
-        target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &Default::default()).unwrap();
-        target.finish().unwrap();
 
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                _ => ()
-            }
+        mg.print(&t1, 0.0, 0.0, t, 0.5,1.5);
+        mg.print(&t1, 0.0, 0.0, t*0.95, 0.5,1.5);
+        mg.print(&t1, 0.0, 0.0, t*0.9, 0.5,1.5);
+        mg.print(&t1, 0.0, 0.0, t*0.85, 0.5,1.5);
+        mg.print(&t1, 0.0, 0.0, t*0.8, 0.5,1.5);
+        mg.flush();
+
+        println!("framerate: {}", mg.framerate.get_framerate());
+        println!("mouse x,y: {},{} left {:?}, right {:?}", mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
+
+        if mg.closed {
+            return
         }
     }
 }
