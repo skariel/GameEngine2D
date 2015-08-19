@@ -1,9 +1,10 @@
-- mouse: drag and drop
 - window events
 - keyboard struct
 - Implement a Map!
-- Some better primitives
-- Loading image from disk
+- Some shapes
+- Loading shapes from disk
 - Task list
 - A few more shaders (e.g. colors)
 - A few more printing functions (e.g. highlight, outer border, ect.)
+- some iterations over mouse dragging, see inline todos
+- collisions: add separate triangles for collisions, add intriangle methods

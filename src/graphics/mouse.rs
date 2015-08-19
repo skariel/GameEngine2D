@@ -132,6 +132,7 @@ impl Mouse {
         self.y = scaled_y;
 
         // testing for new drag
+        // TODO: iterate over these?
         if self.left == ButtonState::Pressed {
             self.left = ButtonState::Drag{x:self.x, y:self.y};
         }
