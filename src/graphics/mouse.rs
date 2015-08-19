@@ -5,6 +5,7 @@ use graphics::window::Window;
 pub enum ButtonState {
     Pressed,
     Released,
+    Drag{x:f32, y:f32},
 }
 
 #[derive(Debug)]
@@ -13,6 +14,8 @@ pub enum DButtonState {
     Pressed,
     Released,
     Boring,
+    Drag,
+    Drop,
 }
 
 #[derive(Debug)]
@@ -39,6 +42,21 @@ pub struct Mouse {
     pub dleft: DButtonState,
     pub dright: DButtonState,
     pub dmiddle: DButtonState,
+}
+
+fn rescale_location(x:f32, y:f32, old_window: &Window, new_window: &Window) -> (f32,f32) {
+    let old_fp_x = (old_window.size_pixels_x as f32)/2.0;
+    let old_fp_y = (old_window.size_pixels_y as f32)/2.0;
+
+    let new_fp_x = (new_window.size_pixels_x as f32)/2.0;
+    let new_fp_y = (new_window.size_pixels_y as f32)/2.0;
+
+    let pixel_x = (x+1.0)*old_fp_x;
+    let pixel_y = (y/old_window.aspect_ratio_y+1.0)*old_fp_y;
+
+    let scaled_x = pixel_x/new_fp_x - 1.0;
+    let scaled_y = (pixel_y/new_fp_y - 1.0)*new_window.aspect_ratio_y;
+    (scaled_x, scaled_y)
 }
 
 impl Mouse {
@@ -72,25 +90,38 @@ impl Mouse {
     }
 
     pub fn rescale(&mut self, old_window: &Window, new_window: &Window) {
-        let old_fp_x = (old_window.size_pixels_x as f32)/2.0;
-        let old_fp_y = (old_window.size_pixels_y as f32)/2.0;
-
-        let new_fp_x = (new_window.size_pixels_x as f32)/2.0;
-        let new_fp_y = (new_window.size_pixels_y as f32)/2.0;
-
-        let pixel_x = (self.x+1.0)*old_fp_x;
-        let pixel_y = (self.y/old_window.aspect_ratio_y+1.0)*old_fp_y;
-
-        let scaled_x = pixel_x/new_fp_x - 1.0;
-        let scaled_y = (pixel_y/new_fp_y - 1.0)*new_window.aspect_ratio_y;
-
+        let (scaled_x,scaled_y) = rescale_location(self.x, self.y, old_window,new_window);
         self.dx = scaled_x-self.x;
         self.x = scaled_x;
         self.dy = scaled_y-self.y;
         self.y = scaled_y;
+
+        // TODO: iterate over these instead of repeating everthing 3 times...
+        match self.left {
+            ButtonState::Drag{x,y} => {
+                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+                    self.left = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
+                },
+            _ => (),
+        };
+        match self.right {
+            ButtonState::Drag{x,y} => {
+                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+                    self.right = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
+                },
+            _ => (),
+        };
+        match self.middle {
+            ButtonState::Drag{x,y} => {
+                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+                    self.middle = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
+                },
+            _ => (),
+        };
     }
 
     pub fn moved(&mut self, x: i32, y:i32, window: &Window) {
+        // updating positions...
         let fp_x = (window.size_pixels_x as f32)/2.0;
         let fp_y = (window.size_pixels_y as f32)/2.0;
         let scaled_x = (x as f32)/fp_x - 1.0;
@@ -99,6 +130,17 @@ impl Mouse {
         self.x = scaled_x;
         self.dy = scaled_y-self.y;
         self.y = scaled_y;
+
+        // testing for new drag
+        if self.left == ButtonState::Pressed {
+            self.left = ButtonState::Drag{x:self.x, y:self.y};
+        }
+        if self.right == ButtonState::Pressed {
+            self.right = ButtonState::Drag{x:self.x, y:self.y};
+        }
+        if self.middle == ButtonState::Pressed {
+            self.middle = ButtonState::Drag{x:self.x, y:self.y};
+        }
     }
 
     pub fn wheel(&mut self, dx:f32, dy:f32) {
@@ -112,12 +154,13 @@ impl Mouse {
         let dstate = match state {
             ButtonState::Pressed => DButtonState::Pressed,
             ButtonState::Released => DButtonState::Released,
+            ButtonState::Drag{x:_,y:_} => DButtonState::Drop,
         };
         match button {
             Button::Left  => {self.left=state; self.dleft=dstate;},
             Button::Right => {self.right=state; self.dright=dstate;},
             Button::Middle  => {self.middle=state; self.dmiddle=dstate;},
-            _ => (),
+            Button::Other => (),
         }
     }
 }

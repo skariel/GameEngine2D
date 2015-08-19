@@ -33,6 +33,15 @@ fn main() {
         println!("framerate: {}", mg.framerate.get_framerate());
         println!("mouse x,y: {},{} left {:?}, right {:?}", mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
 
+        match mg.mouse.left {
+            graphics::mouse::ButtonState::Drag{x:_,y:_} => {
+                tx=mg.mouse.x;
+                ty=mg.mouse.y;
+                println!("DRAGGING!!!!!!!!!!!!!!!!");
+            },
+            _ => (),
+        };
+
         if mg.mouse.dleft == graphics::mouse::DButtonState::Pressed {
             tx = mg.mouse.x;
             ty = mg.mouse.y;
