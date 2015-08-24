@@ -1,10 +1,23 @@
-- window events
-- keyboard struct
-- Implement a Map!
-- Some shapes
+Features:
+
+- Make a shape type -- should have all triangles in memory, radius, bounding box, etc.
+- Some basic shapes -- (e.g. circle, box, etc.)
 - Loading shapes from disk
 - Task list
+- Sprite list
+- Figure out collisions (gross, exact, intriangle, etc.)
 - A few more shaders (e.g. colors)
 - A few more printing functions (e.g. highlight, outer border, ect.)
 - some iterations over mouse dragging, see inline todos
 - collisions: add separate triangles for collisions, add intriangle methods
+- Lighting, normals!
+
+Refactorings:
+
+- Rename `mygraphics` into `game_engine`
+- Extract a camera with draw calls or something equivalent, able to run parallel
+- Extract `graphics` tied to glium/opengl, single threaded
+
+Considerations:
+
+- a second pass for filtering

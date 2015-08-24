@@ -5,4 +5,4 @@ authors = ["Ariel Keselman <skariel@gmail.com>"]
 
 [dependencies]
 glium = "*"
-time = "0.1"
+time = "*"

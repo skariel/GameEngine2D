@@ -1,15 +1,13 @@
 use graphics::window::Window;
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum ButtonState {
     Pressed,
     Released,
     Drag{x:f32, y:f32},
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum DButtonState {
     Pressed,
     Released,
@@ -18,8 +16,7 @@ pub enum DButtonState {
     Drop,
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Button {
     Left,
     Right,

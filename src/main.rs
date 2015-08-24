@@ -32,6 +32,7 @@ fn main() {
 
         println!("framerate: {}", mg.framerate.get_framerate());
         println!("mouse x,y: {},{} left {:?}, right {:?}", mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
+        println!("up: {:?}", mg.keyboard.up);
 
         match mg.mouse.left {
             graphics::mouse::ButtonState::Drag{x:_,y:_} => {

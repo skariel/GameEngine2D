@@ -1,6 +1,7 @@
 extern crate glium;
 
 pub mod mouse;
+pub mod keyboard;
 pub mod window;
 pub mod framerate;
 
@@ -18,6 +19,7 @@ pub struct Mygraphics<'a> {
     pub closed: bool,
     pub framerate: framerate::FrameRate,
     pub mouse: mouse::Mouse,
+    pub keyboard: keyboard::Keyboard,
     pub window: window::Window,
 }
 
@@ -95,6 +97,7 @@ impl<'a> Mygraphics<'a> {
             closed: false,
             framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
             mouse: mouse::Mouse::new(),
+            keyboard: keyboard::Keyboard::new(),
             window: window::Window::new(wx, wy),
         }
     }
@@ -123,6 +126,7 @@ impl<'a> Mygraphics<'a> {
         self.flushed = true;
         self.framerate.flush();
         self.mouse.cleardiffs();
+        self.keyboard.cleardiffs();
 
         for ev in self.display.poll_events() {
             match ev {
@@ -151,7 +155,15 @@ impl<'a> Mygraphics<'a> {
                         _ => mouse::Button::Other,
                     };
                     self.mouse.button(mymousebutton, mybuttonstate);
-                }
+                },
+                glium::glutin::Event::KeyboardInput(gstate, gid, _) => {
+                    let state = match gstate {
+                        glium::glutin::ElementState::Pressed => keyboard::KeyState::Pressed,
+                        glium::glutin::ElementState::Released => keyboard::KeyState::Released,
+                    };
+                    let id = keyboard::KeyId(gid);
+                    self.keyboard.key(id, state);
+                },
                 _ => (),
             }
         }
