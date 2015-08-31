@@ -1,30 +1,27 @@
-extern crate glium;
-
-pub mod mouse;
-pub mod keyboard;
-pub mod window;
-pub mod framerate;
-
+use glium;
 use glium::{DisplayBuild, Surface};
+use engine::{draw, window, mouse, keyboard, shapes};
 
-const FRAMERATE_FRAMES: usize = 128;
-
-pub struct Mygraphics<'a> {
+pub struct Graphics<'a> {
     display: glium::backend::glutin_backend::GlutinFacade,
     indices: glium::index::NoIndices,
     program: glium::Program,
     target: glium::Frame,
     draw_parameters: glium::DrawParameters<'a>,
-    flushed: bool,
-    pub closed: bool,
-    pub framerate: framerate::FrameRate,
-    pub mouse: mouse::Mouse,
-    pub keyboard: keyboard::Keyboard,
     pub window: window::Window,
 }
 
-impl<'a> Mygraphics<'a> {
-    pub fn new(title: String) -> Mygraphics<'a> {
+impl<'a> Drop for Graphics<'a> {
+    fn drop(&mut self) {
+        match self.target.set_finish() {
+            Ok(_) => (),
+            Err(_) => (),
+        }
+    }
+}
+
+impl<'a> Graphics<'a> {
+    pub fn new(title: String) -> Graphics<'a> {
         let display = glium::glutin::WindowBuilder::new()
             .with_vsync()
             .with_title(title)
@@ -84,31 +81,21 @@ impl<'a> Mygraphics<'a> {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.set_finish().unwrap();
+        target = display.draw();
+        target.clear_color(0.0, 0.0, 0.0, 1.0);
 
         let (wx, wy) = display.get_framebuffer_dimensions();
-
-        Mygraphics {
+        Graphics{
             display: display,
             indices: indices,
             program: program,
             target: target,
             draw_parameters: draw_parameters,
-            flushed: true,
-            closed: false,
-            framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
-            mouse: mouse::Mouse::new(),
-            keyboard: keyboard::Keyboard::new(),
             window: window::Window::new(wx, wy),
         }
     }
 
-    pub fn print(&mut self, shape: &glium::VertexBuffer<Vertex>, tx: f32, ty: f32, r: f32, zoom_x: f32, zoom_y: f32) {
-        if self.flushed {
-            self.target = self.display.draw();
-            self.target.clear_color(0.0, 0.0, 0.0, 1.0);
-            self.flushed = false;
-        }
-
+    pub fn print(&mut self, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, r: f32, zoom_x: f32, zoom_y: f32) {
         let uniforms = uniform! {
             tx: tx,
             ty: ty,
@@ -121,26 +108,37 @@ impl<'a> Mygraphics<'a> {
                     &self.draw_parameters).unwrap();
     }
 
+    pub fn compile(&self, shape: &[shapes::Vertex]) -> glium::VertexBuffer<shapes::Vertex> {
+        glium::VertexBuffer::new(&self.display, &shape).unwrap()
+    }
+
+    pub fn print_params(&mut self, params: &draw::DrawParams) {
+        self.print(&params.shape, params.tx, params.ty, params.r, params.zoom_x, params.zoom_y);
+    }
+
     pub fn flush(&mut self) {
         self.target.set_finish().unwrap();
-        self.flushed = true;
-        self.framerate.flush();
-        self.mouse.cleardiffs();
-        self.keyboard.cleardiffs();
+        self.target = self.display.draw();
+        self.target.clear_color(0.0, 0.0, 0.0, 1.0);
+    }
+
+    pub fn poll_events(&mut self, mouse: &mut mouse::Mouse, keyboard: &mut keyboard::Keyboard) {
+        mouse.cleardiffs();
+        keyboard.cleardiffs();
 
         for ev in self.display.poll_events() {
             match ev {
                 glium::glutin::Event::Resized(wx, wy) =>
                     {
                         let new_window = window::Window::new(wx, wy);
-                        self.mouse.rescale(&self.window, &new_window);
+                        mouse.rescale(&self.window, &new_window);
                         self.window = new_window;
                     },
-                glium::glutin::Event::Closed => self.closed = true,
-                glium::glutin::Event::MouseMoved((x,y)) => self.mouse.moved(x,y,&self.window),
+                glium::glutin::Event::Closed => self.window.closed = true,
+                glium::glutin::Event::MouseMoved((x,y)) => mouse.moved(x,y,&self.window),
                 glium::glutin::Event::MouseWheel(w) =>
                     match w {
-                        glium::glutin::MouseScrollDelta::LineDelta(dx,dy) => self.mouse.wheel(dx,dy),
+                        glium::glutin::MouseScrollDelta::LineDelta(dx,dy) => mouse.wheel(dx,dy),
                         _ => (),
                     },
                 glium::glutin::Event::MouseInput(elementstate, mousebutton) => {
@@ -154,7 +152,7 @@ impl<'a> Mygraphics<'a> {
                         glium::glutin::MouseButton::Middle => mouse::Button::Middle,
                         _ => mouse::Button::Other,
                     };
-                    self.mouse.button(mymousebutton, mybuttonstate);
+                    mouse.button(mymousebutton, mybuttonstate);
                 },
                 glium::glutin::Event::KeyboardInput(gstate, gid, _) => {
                     let state = match gstate {
@@ -162,32 +160,11 @@ impl<'a> Mygraphics<'a> {
                         glium::glutin::ElementState::Released => keyboard::KeyState::Released,
                     };
                     let id = keyboard::KeyId(gid);
-                    self.keyboard.key(id, state);
+                    keyboard.key(id, state);
                 },
                 _ => (),
             }
-        }
+        };
+
     }
-
-    pub fn compile(&self, shape: &[Vertex]) -> glium::VertexBuffer<Vertex> {
-        glium::VertexBuffer::new(&self.display, &shape).unwrap()
-    }
-
-}
-
-#[derive(Copy, Clone)]
-pub struct Vertex {
-    position: [f32; 2],
-    color: [f32; 4]
-}
-implement_vertex!(Vertex, position, color);
-
-pub fn get_triangle(g: &Mygraphics) -> glium::VertexBuffer<Vertex> {
-    let triangle =
-        [
-            Vertex { position: [-0.2, -0.2], color: [0.0,1.0,1.0,0.5]},
-            Vertex { position: [ 0.0,  0.2], color: [1.0,0.0,1.0,0.5]},
-            Vertex { position: [ 0.2, -0.07], color: [1.0,1.0,0.0,0.5]}
-        ];
-    g.compile(&triangle)
 }

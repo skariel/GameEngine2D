@@ -2,31 +2,54 @@
 extern crate glium;
 extern crate time;
 
-pub mod graphics;
+pub mod engine;
 
-use graphics::{Mygraphics, get_triangle};
+use engine::Engine;
+use engine::tasklist::{Task, TaskState};
+use engine::draw::DrawList;
+use engine::shapes;
+
+struct MySprite {
+    x:f32,
+    y:f32,
+    fig: glium::VertexBuffer<shapes::Vertex>,
+}
+
+impl Task for MySprite {
+    fn handle(&mut self) -> TaskState {
+        TaskState::OK
+    }
+    fn draw<'k>(&'k self, draw: &mut DrawList<'k>) {
+        draw.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
+    }
+}
 
 fn main() {
 
-    let mut mg = Mygraphics::new("My Game!".to_string());
+    let mut mg = Engine::new("My Game!".to_string());
+    let fig = shapes::get_triangle(&mg.graphics);
+    mg.tasklist.add(Box::new(MySprite {
+        x: 0.1,
+        y: 0.4,
+        fig: fig,
+        }));
 
     let mut t = -8.0f32;
 
-    let t1 = get_triangle(&mg);
+    let t1 = shapes::get_triangle(&mg.graphics);
 
     let mut tx = 0.0;
     let mut ty = 0.0;
 
     loop {
 
-        if mg.mouse.left != graphics::mouse::ButtonState::Pressed {
+        if mg.mouse.left != engine::mouse::ButtonState::Pressed {
             t += 0.02;
         };
 
-
-        let zoom = 1500.0/(mg.window.size_pixels_x as f32);
+        let zoom = 1500.0/(mg.graphics.window.size_pixels_x as f32);
         for i in 1..50 {
-            mg.print(&t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
+            mg.graphics.print(&t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
         }
         mg.flush();
 
@@ -35,7 +58,7 @@ fn main() {
         println!("up: {:?}", mg.keyboard.up);
 
         match mg.mouse.left {
-            graphics::mouse::ButtonState::Drag{x:_,y:_} => {
+            engine::mouse::ButtonState::Drag{x:_,y:_} => {
                 tx=mg.mouse.x;
                 ty=mg.mouse.y;
                 println!("DRAGGING!!!!!!!!!!!!!!!!");
@@ -43,12 +66,12 @@ fn main() {
             _ => (),
         };
 
-        if mg.mouse.dleft == graphics::mouse::DButtonState::Pressed {
+        if mg.mouse.dleft == engine::mouse::DButtonState::Pressed {
             tx = mg.mouse.x;
             ty = mg.mouse.y;
         }
 
-        if mg.closed {
+        if mg.graphics.window.closed {
             return
         }
     }

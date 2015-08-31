@@ -8,7 +8,6 @@ Features:
 - Figure out collisions (gross, exact, intriangle, etc.)
 - A few more shaders (e.g. colors)
 - A few more printing functions (e.g. highlight, outer border, ect.)
-- some iterations over mouse dragging, see inline todos
 - collisions: add separate triangles for collisions, add intriangle methods
 - Lighting, normals!
 
@@ -17,6 +16,7 @@ Refactorings:
 - Rename `mygraphics` into `game_engine`
 - Extract a camera with draw calls or something equivalent, able to run parallel
 - Extract `graphics` tied to glium/opengl, single threaded
+- some iterations over mouse dragging, see inline todos
 
 Considerations:
 

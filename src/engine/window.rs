@@ -2,6 +2,7 @@ pub struct Window {
     pub size_pixels_x: u32,
     pub size_pixels_y: u32,
     pub aspect_ratio_y: f32,
+    pub closed: bool,
 }
 
 impl Window {
@@ -11,6 +12,7 @@ impl Window {
             size_pixels_x: size_pixels_x,
             size_pixels_y: size_pixels_y,
             aspect_ratio_y: aspect_ratio_y,
+            closed: false,
         }
     }
 }
