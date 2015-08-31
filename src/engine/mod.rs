@@ -38,7 +38,7 @@ impl<'a> Engine<'a> {
         self.time.flush();
         self.graphics.flush();
         self.graphics.poll_events(&mut self.mouse, &mut self.keyboard);
-        let drawlist = self.tasklist.flush(&self.mouse, &self.keyboard);
+        let drawlist = self.tasklist.flush(&self.mouse, &self.keyboard, &self.time);
         for params in drawlist.params.iter() {
             self.graphics.print_params(params);
         }

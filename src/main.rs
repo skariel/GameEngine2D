@@ -11,6 +11,7 @@ use engine::shapes;
 use engine::tasklist;
 use engine::mouse;
 use engine::keyboard;
+use engine::time::Time;
 
 use std::rc;
 
@@ -21,7 +22,7 @@ struct MySprite {
 }
 
 impl Task for MySprite {
-    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard) -> TaskState {
+    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard, _time: &Time) -> TaskState {
         self.x += 0.01;
         if self.x>0.5 {
             tasklist.add(Box::new(MySprite {
