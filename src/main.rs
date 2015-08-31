@@ -16,6 +16,7 @@ use engine::time::Time;
 use std::rc;
 
 struct MySprite {
+    spawned:bool,
     x:f32,
     y:f32,
     fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
@@ -24,13 +25,14 @@ struct MySprite {
 impl Task for MySprite {
     fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard, _time: &Time) -> TaskState {
         self.x += 0.01;
-        if self.x>-0.3 {
+        if self.x>-0.3 && !self.spawned {
+            self.spawned = true;
             tasklist.add(Box::new(MySprite {
+                    spawned: false,
                     x: -0.9,
-                    y: self.y+0.1,
+                    y: self.y+0.2,
                     fig: self.fig.clone(),
                     }));
-            return TaskState::Remove;
         }
         if self.x>0.7 {
             return TaskState::Remove;
@@ -47,6 +49,7 @@ fn main() {
     let mut mg = Engine::new("My Game!".to_string());
     let fig = shapes::get_triangle(&mg.graphics);
     mg.tasklist.add(Box::new(MySprite {
+        spawned:false,
         x: -0.9,
         y: -0.4,
         fig: rc::Rc::new(fig),
