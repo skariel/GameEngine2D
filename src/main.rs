@@ -24,12 +24,15 @@ struct MySprite {
 impl Task for MySprite {
     fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard, _time: &Time) -> TaskState {
         self.x += 0.01;
-        if self.x>0.5 {
+        if self.x>-0.3 {
             tasklist.add(Box::new(MySprite {
                     x: -0.9,
                     y: self.y+0.1,
                     fig: self.fig.clone(),
                     }));
+            return TaskState::Remove;
+        }
+        if self.x>0.7 {
             return TaskState::Remove;
         }
         TaskState::OK
