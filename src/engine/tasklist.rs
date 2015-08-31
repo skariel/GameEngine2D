@@ -1,4 +1,5 @@
-use engine::{draw, mouse, keyboard, time};
+use engine;
+use engine::draw;
 
 pub enum TaskState {
     Remove,
@@ -9,7 +10,7 @@ pub enum TaskState {
 //XXX --> TODO: add global state to `handle`
 
 pub trait Task {
-    fn handle(&mut self, tasklist: &mut TaskList, mouse: &mouse::Mouse, keyboard: &keyboard::Keyboard, time: &time::Time) -> TaskState;
+    fn handle(&mut self, tasklist: &mut TaskList, data: &engine::Data) -> TaskState;
     fn draw<'k>(&'k self, drawlist: &mut draw::DrawList<'k>);
 }
 
@@ -28,7 +29,7 @@ impl TaskList {
         self.tasks.push(task);
     }
 
-    pub fn flush(&mut self, mouse: &mouse::Mouse, keyboard: &keyboard::Keyboard, time:&time::Time) -> draw::DrawList {
+    pub fn flush(&mut self, data: &engine::Data) -> draw::DrawList {
         let mut removeixs: Vec<usize> = Vec::new();
         let mut should_draw: Vec<bool> = Vec::new();
         let mut drawlist = draw::DrawList::new();
@@ -39,7 +40,7 @@ impl TaskList {
         let mut newtasks = TaskList::new();
         for task in self.tasks.iter_mut() {
             let mut tmp_newtasks = TaskList::new();
-            match task.handle(&mut tmp_newtasks, mouse, keyboard, time) {
+            match task.handle(&mut tmp_newtasks, data) {
                 TaskState::Remove => {removeixs.push(ix); should_draw.push(false)},
                 TaskState::DontDraw => should_draw.push(false),
                 TaskState::OK => should_draw.push(true),

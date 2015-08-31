@@ -4,14 +4,7 @@ extern crate time;
 
 pub mod engine;
 
-use engine::Engine;
-use engine::tasklist::{Task, TaskState};
-use engine::draw::DrawList;
-use engine::shapes;
-use engine::tasklist;
-use engine::mouse;
-use engine::keyboard;
-use engine::time::Time;
+use engine::{Engine, draw, shapes, tasklist};
 
 use std::rc;
 
@@ -22,8 +15,8 @@ struct MySprite {
     fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
 }
 
-impl Task for MySprite {
-    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard, _time: &Time) -> TaskState {
+impl tasklist::Task for MySprite {
+    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _data: &engine::Data) -> tasklist::TaskState {
         self.x += 0.01;
         if self.x>-0.3 && !self.spawned {
             self.spawned = true;
@@ -35,11 +28,11 @@ impl Task for MySprite {
                     }));
         }
         if self.x>0.7 {
-            return TaskState::Remove;
+            return tasklist::TaskState::Remove;
         }
-        TaskState::OK
+        tasklist::TaskState::OK
     }
-    fn draw<'k>(&'k self, draw: &mut DrawList<'k>) {
+    fn draw<'k>(&'k self, draw: &mut draw::DrawList<'k>) {
         draw.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
 }
