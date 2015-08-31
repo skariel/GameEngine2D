@@ -56,6 +56,7 @@ impl Keyboard {
     pub fn new() -> Keyboard {
         Keyboard {
             // TODO: implement the index trait, all this indexing will be cleaner
+            // i.e. instead of indexing with id.0 as usize etc.
             up        : KeyState::Released,
             dup       : DKeyState::Boring,
             down      : KeyState::Released,

@@ -7,8 +7,6 @@ pub enum TaskState {
     OK,
 }
 
-//XXX --> TODO: add global state to `handle`
-
 pub trait Task {
     fn handle(&mut self, tasklist: &mut TaskList, data: &engine::Data) -> TaskState;
     fn draw<'k>(&'k self, drawlist: &mut draw::DrawList<'k>);
@@ -64,7 +62,7 @@ impl TaskList {
             if should_draw[ix] {
                 let mut tmp_drawlist = draw::DrawList::new();
                 task.draw(&mut tmp_drawlist);
-                drawlist.params.extend(tmp_drawlist.params.into_iter());                
+                drawlist.params.extend(tmp_drawlist.params.into_iter());
             }
             ix += 1;
         }
