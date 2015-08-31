@@ -62,7 +62,9 @@ impl TaskList {
                 break;
             }
             if should_draw[ix] {
-                task.draw(&mut drawlist);
+                let mut tmp_drawlist = draw::DrawList::new();
+                task.draw(&mut tmp_drawlist);
+                drawlist.params.extend(tmp_drawlist.params.into_iter());                
             }
             ix += 1;
         }
