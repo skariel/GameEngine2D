@@ -8,15 +8,29 @@ use engine::Engine;
 use engine::tasklist::{Task, TaskState};
 use engine::draw::DrawList;
 use engine::shapes;
+use engine::tasklist;
+use engine::mouse;
+use engine::keyboard;
+
+use std::rc;
 
 struct MySprite {
     x:f32,
     y:f32,
-    fig: glium::VertexBuffer<shapes::Vertex>,
+    fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
 }
 
 impl Task for MySprite {
-    fn handle(&mut self) -> TaskState {
+    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _mouse: &mouse::Mouse, _keyboard: &keyboard::Keyboard) -> TaskState {
+        self.x += 0.01;
+        if self.x>0.5 {
+            tasklist.add(Box::new(MySprite {
+                    x: -0.9,
+                    y: self.y+0.1,
+                    fig: self.fig.clone(),
+                    }));
+            return TaskState::Remove;
+        }
         TaskState::OK
     }
     fn draw<'k>(&'k self, draw: &mut DrawList<'k>) {
@@ -29,9 +43,9 @@ fn main() {
     let mut mg = Engine::new("My Game!".to_string());
     let fig = shapes::get_triangle(&mg.graphics);
     mg.tasklist.add(Box::new(MySprite {
-        x: 0.1,
-        y: 0.4,
-        fig: fig,
+        x: -0.9,
+        y: -0.4,
+        fig: rc::Rc::new(fig),
         }));
 
     let mut t = -8.0f32;

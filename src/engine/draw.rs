@@ -31,6 +31,6 @@ impl<'s> DrawList<'s> {
                     zoom_x: zoom_x,
                     zoom_y: zoom_y,
             }
-            );
+        );
     }
 }
