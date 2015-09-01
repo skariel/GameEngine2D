@@ -4,7 +4,7 @@ extern crate time;
 
 pub mod engine;
 
-use engine::{Engine, surface, shapes, tasklist};
+use engine::{Engine, surface, shapes, tasklist, camera};
 
 use std::rc;
 
@@ -27,7 +27,7 @@ impl tasklist::Task<MySharedData> for MySprite {
             tasklist.add(Box::new(MySprite {
                     spawned: false,
                     x: -0.9,
-                    y: self.y+0.2,
+                    y: self.y,
                     fig: self.fig.clone(),
                     }));
         }
@@ -40,7 +40,11 @@ impl tasklist::Task<MySharedData> for MySprite {
     fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {
         surface.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
-    fn share(&self, data: &mut MySharedData) {
+    fn share(&self, data: &mut MySharedData, camera: &mut camera::Camera) {
+        //camera.zoom_x *= 0.9997;
+        //camera.zoom_y *= 0.9997;
+        //camera.x += 0.0003;
+        camera.increase_rotation(0.003);
         data.num += 1;
     }
 }

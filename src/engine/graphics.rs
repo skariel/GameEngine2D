@@ -1,6 +1,6 @@
 use glium;
 use glium::{DisplayBuild, Surface};
-use engine::{surface, window, mouse, keyboard, shapes};
+use engine::{surface, window, mouse, keyboard, shapes, camera};
 
 pub struct Graphics<'a> {
     display: glium::backend::glutin_backend::GlutinFacade,
@@ -8,6 +8,7 @@ pub struct Graphics<'a> {
     program: glium::Program,
     target: glium::Frame,
     draw_parameters: glium::DrawParameters<'a>,
+    pub camera: camera::Camera,
     pub window: window::Window,
 }
 
@@ -39,15 +40,15 @@ impl<'a> Graphics<'a> {
 
             uniform float tx;
             uniform float ty;
-            uniform float r;
+            uniform float rotation;
             uniform float zoom_x;
             uniform float zoom_y;
             uniform float aspect_ratio_y;
 
             void main() {
                 interpolated_color = color;
-                float cr = cos(r);
-                float sr = sin(r);
+                float cr = cos(rotation);
+                float sr = sin(rotation);
                 float px = position[0]*zoom_x;
                 float py = position[1]*zoom_y;
                 float nx = cr*px+sr*py;
@@ -91,17 +92,20 @@ impl<'a> Graphics<'a> {
             program: program,
             target: target,
             draw_parameters: draw_parameters,
+            camera: camera::Camera::new(),
             window: window::Window::new(wx, wy),
         }
     }
 
-    pub fn print(&mut self, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, r: f32, zoom_x: f32, zoom_y: f32) {
+    pub fn print(&mut self, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, rotation: f32, zoom_x: f32, zoom_y: f32) {
+        let unrotated_tx = (tx - self.camera.x)*self.camera.zoom_x;
+        let unrotated_ty = (ty - self.camera.y)*self.camera.zoom_y;
         let uniforms = uniform! {
-            tx: tx,
-            ty: ty,
-            r: r,
-            zoom_x: zoom_x,
-            zoom_y: zoom_y,
+            tx : self.camera.get_cos()*unrotated_tx+self.camera.get_sin()*unrotated_ty,
+            ty :-self.camera.get_sin()*unrotated_tx+self.camera.get_cos()*unrotated_ty,
+            rotation: rotation - self.camera.get_rotation(),
+            zoom_x: zoom_x*self.camera.zoom_x,
+            zoom_y: zoom_y*self.camera.zoom_y,
             aspect_ratio_y: self.window.aspect_ratio_y,
         };
         self.target.draw(shape, &self.indices, &self.program, &uniforms,
@@ -113,7 +117,7 @@ impl<'a> Graphics<'a> {
     }
 
     pub fn print_params(&mut self, params: &surface::DrawParams) {
-        self.print(&params.shape, params.tx, params.ty, params.r, params.zoom_x, params.zoom_y);
+        self.print(&params.shape, params.tx, params.ty, params.rotation, params.zoom_x, params.zoom_y);
     }
 
     pub fn flush(&mut self) {

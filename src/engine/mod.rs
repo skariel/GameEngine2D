@@ -9,6 +9,7 @@ pub mod time;
 pub mod surface;
 pub mod graphics;
 pub mod shapes;
+pub mod camera;
 
 const FRAMERATE_FRAMES: usize = 128;
 
@@ -17,6 +18,7 @@ pub struct Data<'s, T: 's>  {
     pub mouse: &'s mouse::Mouse,
     pub keyboard: &'s keyboard::Keyboard,
     pub time: &'s time::Time,
+    pub camera: &'s camera::Camera,
     pub shared: &'s T,
 }
 
@@ -48,13 +50,14 @@ impl<'a, T> Engine<'a, T> {
         self.time.flush();
         self.graphics.flush();
         self.graphics.poll_events(&mut self.mouse, &mut self.keyboard);
-        self.tasklist.flush_share(&mut self.shared_data);
+        self.tasklist.flush_share(&mut self.shared_data, &mut self.graphics.camera);
         let surface = self.tasklist.flush_handle_and_draw(
             &Data {
                 keyboard: &self.keyboard,
                 mouse: &self.mouse,
                 time: &self.time,
                 framerate: &self.framerate,
+                camera: &self.graphics.camera,
                 shared: &self.shared_data,
             }
         );

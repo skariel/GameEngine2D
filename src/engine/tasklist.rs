@@ -1,5 +1,5 @@
 use engine;
-use engine::surface;
+use engine::{surface, camera};
 
 pub enum TaskState {
     Remove,
@@ -12,7 +12,7 @@ pub trait Task<T> {
     #[allow(unused_variables)]
     fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {}
     #[allow(unused_variables)]
-    fn share(&self, data: &mut T) {}
+    fn share(&self, data: &mut T, camera: &mut camera::Camera) {}
 }
 
 pub struct TaskList<T> {
@@ -30,9 +30,9 @@ impl<T> TaskList<T> {
         self.tasks.push(task);
     }
 
-    pub fn flush_share(&self, shared_data: &mut T) {
+    pub fn flush_share(&self, shared_data: &mut T, camera: &mut camera::Camera) {
         for task in self.tasks.iter() {
-            task.share(shared_data);
+            task.share(shared_data, camera);
         }
     }
 
