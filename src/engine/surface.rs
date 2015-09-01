@@ -10,19 +10,19 @@ pub struct DrawParams<'s> {
     pub zoom_y: f32,
 }
 
-pub struct DrawList<'s>{
-    pub params: Vec<DrawParams<'s>>,
+pub struct Surface<'s>{
+    pub drawparams: Vec<DrawParams<'s>>,
 }
 
-impl<'s> DrawList<'s> {
-    pub fn new() -> DrawList<'s> {
-        DrawList {
-            params: Vec::new(),
+impl<'s> Surface<'s> {
+    pub fn new() -> Surface<'s> {
+        Surface {
+            drawparams: Vec::new(),
         }
     }
 
     pub fn draw(&mut self, shape: &'s glium::VertexBuffer<Vertex>, tx: f32, ty: f32, r: f32, zoom_x: f32, zoom_y: f32) {
-        self.params.push(
+        self.drawparams.push(
             DrawParams{
                     shape: shape,
                     tx: tx,

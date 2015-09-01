@@ -6,7 +6,7 @@ pub mod window;
 pub mod framerate;
 pub mod tasklist;
 pub mod time;
-pub mod draw;
+pub mod surface;
 pub mod graphics;
 pub mod shapes;
 
@@ -49,7 +49,7 @@ impl<'a, T> Engine<'a, T> {
         self.graphics.flush();
         self.graphics.poll_events(&mut self.mouse, &mut self.keyboard);
         self.tasklist.flush_share(&mut self.shared_data);
-        let drawlist = self.tasklist.flush_handle_and_draw(
+        let surface = self.tasklist.flush_handle_and_draw(
             &Data {
                 keyboard: &self.keyboard,
                 mouse: &self.mouse,
@@ -58,7 +58,7 @@ impl<'a, T> Engine<'a, T> {
                 shared: &self.shared_data,
             }
         );
-        for params in drawlist.params.iter() {
+        for params in surface.drawparams.iter() {
             self.graphics.print_params(params);
         }
     }

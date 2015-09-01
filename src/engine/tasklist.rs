@@ -1,5 +1,5 @@
 use engine;
-use engine::draw;
+use engine::surface;
 
 pub enum TaskState {
     Remove,
@@ -9,8 +9,10 @@ pub enum TaskState {
 
 pub trait Task<T> {
     fn handle(&mut self, tasklist: &mut TaskList<T>, data: &engine::Data<T>) -> TaskState;
-    fn draw<'k>(&'k self, drawlist: &mut draw::DrawList<'k>);
-    fn share(&self, data: &mut T);
+    #[allow(unused_variables)]
+    fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {}
+    #[allow(unused_variables)]
+    fn share(&self, data: &mut T) {}
 }
 
 pub struct TaskList<T> {
@@ -34,10 +36,10 @@ impl<T> TaskList<T> {
         }
     }
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>) -> draw::DrawList {
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>) -> surface::Surface {
         let mut removeixs: Vec<usize> = Vec::new();
         let mut should_draw: Vec<bool> = Vec::new();
-        let mut drawlist = draw::DrawList::new();
+        let mut surface = surface::Surface::new();
         let mut ix:usize = 0;
         // TODO: optimize the should_draw vector. Size is known...
 
@@ -67,12 +69,12 @@ impl<T> TaskList<T> {
                 break;
             }
             if should_draw[ix] {
-                let mut tmp_drawlist = draw::DrawList::new();
-                task.draw(&mut tmp_drawlist);
-                drawlist.params.extend(tmp_drawlist.params.into_iter());
+                let mut tmp_surface = surface::Surface::new();
+                task.draw(&mut tmp_surface);
+                surface.drawparams.extend(tmp_surface.drawparams.into_iter());
             }
             ix += 1;
         }
-        drawlist
+        surface
     }
 }

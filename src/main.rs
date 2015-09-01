@@ -4,7 +4,7 @@ extern crate time;
 
 pub mod engine;
 
-use engine::{Engine, draw, shapes, tasklist};
+use engine::{Engine, surface, shapes, tasklist};
 
 use std::rc;
 
@@ -20,7 +20,7 @@ struct MySharedData {
 }
 
 impl tasklist::Task<MySharedData> for MySprite {
-    fn handle(&mut self, tasklist: &mut tasklist::TaskList<MySharedData>, _data: &engine::Data<MySharedData>) -> tasklist::TaskState {
+    fn handle(&mut self, tasklist: &mut tasklist::TaskList<MySharedData>, data: &engine::Data<MySharedData>) -> tasklist::TaskState {
         self.x += 0.01;
         if self.x>-0.3 && !self.spawned {
             self.spawned = true;
@@ -34,13 +34,13 @@ impl tasklist::Task<MySharedData> for MySprite {
         if self.x>0.7 {
             return tasklist::TaskState::Remove;
         }
+        println!("global data: {}", data.shared.num);
         tasklist::TaskState::OK
     }
-    fn draw<'k>(&'k self, draw: &mut draw::DrawList<'k>) {
-        draw.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
+    fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {
+        surface.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
     fn share(&self, data: &mut MySharedData) {
-        println!("global data: {}", data.num);
         data.num += 1;
     }
 }

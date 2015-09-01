@@ -1,6 +1,6 @@
 use glium;
 use glium::{DisplayBuild, Surface};
-use engine::{draw, window, mouse, keyboard, shapes};
+use engine::{surface, window, mouse, keyboard, shapes};
 
 pub struct Graphics<'a> {
     display: glium::backend::glutin_backend::GlutinFacade,
@@ -112,7 +112,7 @@ impl<'a> Graphics<'a> {
         glium::VertexBuffer::new(&self.display, &shape).unwrap()
     }
 
-    pub fn print_params(&mut self, params: &draw::DrawParams) {
+    pub fn print_params(&mut self, params: &surface::DrawParams) {
         self.print(&params.shape, params.tx, params.ty, params.r, params.zoom_x, params.zoom_y);
     }
 
