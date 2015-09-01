@@ -40,20 +40,45 @@ impl<'a> Graphics<'a> {
 
             uniform float tx;
             uniform float ty;
+            uniform float camera_x;
+            uniform float camera_y;
             uniform float rotation;
+            uniform float camera_rotation;
             uniform float zoom_x;
             uniform float zoom_y;
+            uniform float camera_zoom_x;
+            uniform float camera_zoom_y;
             uniform float aspect_ratio_y;
 
             void main() {
                 interpolated_color = color;
                 float cr = cos(rotation);
                 float sr = sin(rotation);
+
                 float px = position[0]*zoom_x;
                 float py = position[1]*zoom_y;
+
                 float nx = cr*px+sr*py;
-                float ny = (-sr*px+cr*py)/aspect_ratio_y;
-                gl_Position = vec4(nx+tx,ny-ty, 0.0, 1.0);
+                float ny = -sr*px+cr*py;
+
+                nx += tx;
+                ny += ty;
+
+                float c_cr = cos(camera_rotation);
+                float c_sr = sin(camera_rotation);
+
+                float c_nx = c_cr*nx+c_sr*ny;
+                float c_ny = -c_sr*nx+c_cr*ny;
+
+                c_nx *= camera_zoom_x;
+                c_ny *= camera_zoom_y;
+
+                c_nx -= camera_x,
+                c_ny -= camera_y,
+
+                c_ny /= aspect_ratio_y;
+
+                gl_Position = vec4(c_nx,c_ny, 0.0, 1.0);
             }
         "#;
 
@@ -98,14 +123,17 @@ impl<'a> Graphics<'a> {
     }
 
     pub fn print(&mut self, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, rotation: f32, zoom_x: f32, zoom_y: f32) {
-        let unrotated_tx = (tx - self.camera.x)*self.camera.zoom_x;
-        let unrotated_ty = (ty - self.camera.y)*self.camera.zoom_y;
         let uniforms = uniform! {
-            tx : self.camera.get_cos()*unrotated_tx+self.camera.get_sin()*unrotated_ty,
-            ty :-self.camera.get_sin()*unrotated_tx+self.camera.get_cos()*unrotated_ty,
-            rotation: rotation - self.camera.get_rotation(),
-            zoom_x: zoom_x*self.camera.zoom_x,
-            zoom_y: zoom_y*self.camera.zoom_y,
+            tx : tx,
+            ty : ty,
+            camera_x: self.camera.x,
+            camera_y: self.camera.y,
+            rotation: rotation,
+            camera_rotation: self.camera.rotation,
+            zoom_x: zoom_x,
+            zoom_y: zoom_y,
+            camera_zoom_x: self.camera.zoom_x,
+            camera_zoom_y: self.camera.zoom_y,
             aspect_ratio_y: self.window.aspect_ratio_y,
         };
         self.target.draw(shape, &self.indices, &self.program, &uniforms,

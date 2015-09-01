@@ -122,7 +122,7 @@ impl Mouse {
         let fp_x = (window.size_pixels_x as f32)/2.0;
         let fp_y = (window.size_pixels_y as f32)/2.0;
         let scaled_x = (x as f32)/fp_x - 1.0;
-        let scaled_y = ((y as f32)/fp_y - 1.0)*window.aspect_ratio_y;
+        let scaled_y = -((y as f32)/fp_y - 1.0)*window.aspect_ratio_y;
         self.dx = scaled_x-self.x;
         self.x = scaled_x;
         self.dy = scaled_y-self.y;

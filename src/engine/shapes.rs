@@ -13,7 +13,7 @@ pub fn get_triangle(g: &graphics::Graphics) -> glium::VertexBuffer<Vertex> {
         [
             Vertex { position: [-0.2, -0.2], color: [0.0,1.0,1.0,0.5]},
             Vertex { position: [ 0.0,  0.2], color: [1.0,0.0,1.0,0.5]},
-            Vertex { position: [ 0.2, -0.07], color: [1.0,1.0,0.0,0.5]}
+            Vertex { position: [ 0.2, -0.2], color: [1.0,1.0,0.0,0.5]}
         ];
     g.compile(&triangle)
 }

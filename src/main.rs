@@ -41,10 +41,10 @@ impl tasklist::Task<MySharedData> for MySprite {
         surface.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
     fn share(&self, data: &mut MySharedData, camera: &mut camera::Camera) {
-        //camera.zoom_x *= 0.9997;
-        //camera.zoom_y *= 0.9997;
-        //camera.x += 0.0003;
-        camera.increase_rotation(0.003);
+        camera.x += 0.0005;
+        camera.rotation += 0.003;
+        camera.zoom_x *= 0.999;
+        camera.zoom_y *= 0.999;
         data.num += 1;
     }
 }
@@ -56,7 +56,7 @@ fn main() {
     mg.tasklist.add(Box::new(MySprite {
         spawned:false,
         x: -0.9,
-        y: -0.4,
+        y: 0.3,
         fig: rc::Rc::new(fig),
         }));
 
@@ -74,7 +74,7 @@ fn main() {
         };
 
         let zoom = 1500.0/(mg.graphics.window.size_pixels_x as f32);
-        for i in 1..50 {
+        for i in 1..40 {
             mg.graphics.print(&t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
         }
         mg.flush();
