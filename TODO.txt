@@ -6,7 +6,7 @@ Features:
 - A few more shaders (e.g. colors)
 - A few more printing functions (e.g. highlight, outer border, ect.)
 - Lighting, normals!
-- Figure out "camera"
+- Integrate mouse with camera
 
 Refactorings:
 
