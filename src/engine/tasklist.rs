@@ -7,27 +7,34 @@ pub enum TaskState {
     OK,
 }
 
-pub trait Task {
-    fn handle(&mut self, tasklist: &mut TaskList, data: &engine::Data) -> TaskState;
+pub trait Task<T> {
+    fn handle(&mut self, tasklist: &mut TaskList<T>, data: &engine::Data<T>) -> TaskState;
     fn draw<'k>(&'k self, drawlist: &mut draw::DrawList<'k>);
+    fn share(&self, data: &mut T);
 }
 
-pub struct TaskList {
-    pub tasks: Vec<Box<Task>>,
+pub struct TaskList<T> {
+    pub tasks: Vec<Box<Task<T>>>,
 }
 
-impl TaskList {
-    pub fn new() -> TaskList {
+impl<T> TaskList<T> {
+    pub fn new() -> TaskList<T> {
         TaskList{
             tasks: Vec::new(),
         }
     }
 
-    pub fn add(&mut self, task: Box<Task>) {
+    pub fn add(&mut self, task: Box<Task<T>>) {
         self.tasks.push(task);
     }
 
-    pub fn flush(&mut self, data: &engine::Data) -> draw::DrawList {
+    pub fn flush_share(&self, shared_data: &mut T) {
+        for task in self.tasks.iter() {
+            task.share(shared_data);
+        }
+    }
+
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>) -> draw::DrawList {
         let mut removeixs: Vec<usize> = Vec::new();
         let mut should_draw: Vec<bool> = Vec::new();
         let mut drawlist = draw::DrawList::new();

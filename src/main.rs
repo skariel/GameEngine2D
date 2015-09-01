@@ -15,8 +15,12 @@ struct MySprite {
     fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
 }
 
-impl tasklist::Task for MySprite {
-    fn handle(&mut self, tasklist: &mut tasklist::TaskList, _data: &engine::Data) -> tasklist::TaskState {
+struct MySharedData {
+    num: i64,
+}
+
+impl tasklist::Task<MySharedData> for MySprite {
+    fn handle(&mut self, tasklist: &mut tasklist::TaskList<MySharedData>, _data: &engine::Data<MySharedData>) -> tasklist::TaskState {
         self.x += 0.01;
         if self.x>-0.3 && !self.spawned {
             self.spawned = true;
@@ -35,11 +39,15 @@ impl tasklist::Task for MySprite {
     fn draw<'k>(&'k self, draw: &mut draw::DrawList<'k>) {
         draw.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
+    fn share(&self, data: &mut MySharedData) {
+        println!("global data: {}", data.num);
+        data.num += 1;
+    }
 }
 
 fn main() {
 
-    let mut mg = Engine::new("My Game!".to_string());
+    let mut mg = Engine::new("My Game!".to_string(), MySharedData{num:1});
     let fig = shapes::get_triangle(&mg.graphics);
     mg.tasklist.add(Box::new(MySprite {
         spawned:false,
