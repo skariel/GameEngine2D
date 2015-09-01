@@ -1,4 +1,4 @@
-use engine::window::Window;
+use engine::window;
 
 #[derive(Debug, PartialEq)]
 pub enum ButtonState {
@@ -41,7 +41,7 @@ pub struct Mouse {
     pub dmiddle: DButtonState,
 }
 
-fn rescale_location(x:f32, y:f32, old_window: &Window, new_window: &Window) -> (f32,f32) {
+fn rescale_location(x:f32, y:f32, old_window: &window::Window, new_window: &window::Window) -> (f32,f32) {
     let old_fp_x = (old_window.size_pixels_x as f32)/2.0;
     let old_fp_y = (old_window.size_pixels_y as f32)/2.0;
 
@@ -86,7 +86,7 @@ impl Mouse {
         self.dwheely = 0.0;
     }
 
-    pub fn rescale(&mut self, old_window: &Window, new_window: &Window) {
+    pub fn rescale(&mut self, old_window: &window::Window, new_window: &window::Window) {
         let (scaled_x,scaled_y) = rescale_location(self.x, self.y, old_window,new_window);
         self.dx = scaled_x-self.x;
         self.x = scaled_x;
@@ -117,7 +117,7 @@ impl Mouse {
         };
     }
 
-    pub fn moved(&mut self, x: i32, y:i32, window: &Window) {
+    pub fn moved(&mut self, x: i32, y:i32, window: &window::Window) {
         // updating positions...
         let fp_x = (window.size_pixels_x as f32)/2.0;
         let fp_y = (window.size_pixels_y as f32)/2.0;
