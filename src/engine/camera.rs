@@ -1,4 +1,4 @@
-//
+// Copyright 2015 Jose Ariel Keselman
 //
 // This file is part of GameEngine2D.
 //
@@ -13,7 +13,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+// along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 pub struct Camera {
     pub x: f32,
