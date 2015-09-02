@@ -1,3 +1,6 @@
+#![feature(plugin)]
+#![plugin(clippy)]
+//
 #[macro_use]
 extern crate glium;
 extern crate time;
@@ -50,8 +53,7 @@ impl tasklist::Task<MySharedData> for MySprite {
 }
 
 fn main() {
-
-    let mut mg = Engine::new("My Game!".to_string(), MySharedData{num:1});
+    let mut mg = Engine::new("My Game!".to_owned(), MySharedData{num:1});
     let fig = shapes::get_triangle(&mg.graphics);
     mg.tasklist.add(Box::new(MySprite {
         spawned:false,
@@ -83,15 +85,11 @@ fn main() {
         println!("mouse x,y: {},{} left {:?}, right {:?}", mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
         println!("up: {:?}", mg.keyboard.up);
 
-        match mg.mouse.left {
-            engine::mouse::ButtonState::Drag{x:_,y:_} => {
-                tx=mg.mouse.x;
-                ty=mg.mouse.y;
-                println!("DRAGGING!!!!!!!!!!!!!!!!");
-            },
-            _ => (),
+        if let engine::mouse::ButtonState::Drag{x:_,y:_} = mg.mouse.left {
+            tx=mg.mouse.x;
+            ty=mg.mouse.y;
+            println!("DRAGGING!!!!!!!!!!!!!!!!");
         };
-
         if mg.mouse.dleft == engine::mouse::DButtonState::Pressed {
             tx = mg.mouse.x;
             ty = mg.mouse.y;

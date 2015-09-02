@@ -169,9 +169,8 @@ impl<'a> Graphics<'a> {
                 glium::glutin::Event::Closed => self.window.closed = true,
                 glium::glutin::Event::MouseMoved((x,y)) => mouse.moved(x,y,&self.window),
                 glium::glutin::Event::MouseWheel(w) =>
-                    match w {
-                        glium::glutin::MouseScrollDelta::LineDelta(dx,dy) => mouse.wheel(dx,dy),
-                        _ => (),
+                    if let glium::glutin::MouseScrollDelta::LineDelta(dx,dy) = w {
+                        mouse.wheel(dx,dy);
                     },
                 glium::glutin::Event::MouseInput(elementstate, mousebutton) => {
                     let mybuttonstate = match elementstate {

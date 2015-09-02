@@ -1,6 +1,7 @@
 use engine::window;
 
 #[derive(Debug, PartialEq)]
+#[allow(float_cmp)]
 pub enum ButtonState {
     Pressed,
     Released,
@@ -93,27 +94,19 @@ impl Mouse {
         self.dy = scaled_y-self.y;
         self.y = scaled_y;
 
+
         // TODO: iterate over these instead of repeating everthing 3 times...
-        match self.left {
-            ButtonState::Drag{x,y} => {
-                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
-                    self.left = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
-                },
-            _ => (),
+        if let ButtonState::Drag{x,y} = self.left {
+            let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+            self.left = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
         };
-        match self.right {
-            ButtonState::Drag{x,y} => {
-                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
-                    self.right = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
-                },
-            _ => (),
+        if let ButtonState::Drag{x,y} = self.right {
+            let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+            self.right = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
         };
-        match self.middle {
-            ButtonState::Drag{x,y} => {
-                    let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
-                    self.middle = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
-                },
-            _ => (),
+        if let ButtonState::Drag{x,y} = self.middle {
+            let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
+            self.middle = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
         };
     }
 

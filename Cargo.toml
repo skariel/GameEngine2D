@@ -6,3 +6,4 @@ authors = ["Ariel Keselman <skariel@gmail.com>"]
 [dependencies]
 glium = "*"
 time = "*"
+clippy = "*"
