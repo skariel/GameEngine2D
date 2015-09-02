@@ -1,5 +1,5 @@
 [package]
-name = "my_project"
+name = "GameEngine2D"
 version = "0.1.0"
 authors = ["Ariel Keselman <skariel@gmail.com>"]
 
