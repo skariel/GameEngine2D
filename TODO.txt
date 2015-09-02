@@ -7,11 +7,9 @@ Features:
 - A few more printing functions (e.g. highlight, outer border, ect.)
 - Lighting, normals!
 - Integrate mouse with camera
+- Multiple surfaces?
+- a second pass for filtering?
 
 Refactorings:
 
 - some iterations over mouse dragging, see inline todos
-
-Considerations:
-
-- a second pass for filtering
