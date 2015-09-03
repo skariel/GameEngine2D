@@ -33,12 +33,16 @@ pub trait Task<T> {
 }
 
 pub struct TaskList<T> {
-    pub tasks: Vec<Box<Task<T>>>,
+    removeixs: Vec<usize>,
+    should_draw: Vec<bool>,
+    tasks: Vec<Box<Task<T>>>,
 }
 
 impl<T> TaskList<T> {
     pub fn new() -> TaskList<T> {
         TaskList{
+            removeixs: Vec::new(),
+            should_draw: Vec::new(),
             tasks: Vec::new(),
         }
     }
@@ -54,37 +58,36 @@ impl<T> TaskList<T> {
     }
 
     pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics) {
-        let mut removeixs: Vec<usize> = Vec::new();
-        let mut should_draw: Vec<bool> = Vec::new();
+        self.removeixs.clear();
+        self.should_draw.clear();
         let mut ix:usize = 0;
-        // TODO: optimize the should_draw vector. Size is known...
 
         // handle everybody
         let mut newtasks = TaskList::new();
         for task in self.tasks.iter_mut() {
             let mut tmp_newtasks = TaskList::new();
             match task.handle(&mut tmp_newtasks, data) {
-                TaskState::Remove => {removeixs.push(ix); should_draw.push(false)},
-                TaskState::DontDraw => should_draw.push(false),
-                TaskState::OK => should_draw.push(true),
+                TaskState::Remove => {self.removeixs.push(ix); self.should_draw.push(false)},
+                TaskState::DontDraw => self.should_draw.push(false),
+                TaskState::OK => self.should_draw.push(true),
             };
             newtasks.tasks.extend(tmp_newtasks.tasks.into_iter());
             ix += 1;
         }
         // remove tasks
-        for ix in removeixs {
-            self.tasks.remove(ix);
-            should_draw.remove(ix);
+        for ix in self.removeixs.iter() {
+            self.tasks.remove(*ix);
+            self.should_draw.remove(*ix);
         }
         // add new tasks
         self.tasks.extend(newtasks.tasks.into_iter());
         // draw!
         ix = 0;
         for task in self.tasks.iter_mut() {
-            if ix==should_draw.len() {
+            if ix==self.should_draw.len() {
                 break;
             }
-            if should_draw[ix] {
+            if self.should_draw[ix] {
                 task.draw(&data.camera, graphics);
             }
             ix += 1;

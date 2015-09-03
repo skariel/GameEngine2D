@@ -65,8 +65,8 @@ pub struct Keyboard {
     pub denter    : DKeyState,
     pub backspace : KeyState,
     pub dbackspace: DKeyState,
-    pub keys      : [KeyState; 128],
-    pub dkeys     : [DKeyState; 128],
+    pub keys      : [KeyState; 256],
+    pub dkeys     : [DKeyState; 256],
 }
 
 impl Keyboard {
@@ -88,8 +88,8 @@ impl Keyboard {
             denter    : DKeyState::Boring,
             backspace : KeyState::Released,
             dbackspace: DKeyState::Boring,
-            keys      : [KeyState::Released; 128],
-            dkeys     : [DKeyState::Boring; 128],
+            keys      : [KeyState::Released; 256],
+            dkeys     : [DKeyState::Boring; 256],
         }
     }
 
