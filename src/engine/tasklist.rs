@@ -81,7 +81,7 @@ impl<T: Sync> TaskList<T> {
         }
     }
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {        
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {
         // handle everybody
         self.handle_everybody(data, pool);
         // draw!

@@ -16,4 +16,3 @@ Refactorings:
 
 - some iterations over mouse dragging, see inline todos
 - some better names for task stuff (sprite? separate task/sprite?)
-- More parallel execution (e.g. handle during draw? this will require a drawing queue...)
