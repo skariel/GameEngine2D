@@ -9,6 +9,9 @@ Features:
 - Integrate mouse with camera
 - Multiple surfaces?
 - a second pass for filtering?
+- clipping?
+- custom shaders
+- parallel execution of `handle`, `share` and `draw` (in tasklist)
 
 Refactorings:
 
