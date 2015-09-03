@@ -16,33 +16,37 @@
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 use engine;
-use engine::{camera};
+use engine::{camera, scoped_threadpool, num_cpus};
 
+#[derive(PartialEq)]
 pub enum TaskState {
     Remove,
+    Draw,
     DontDraw,
-    OK,
+}
+
+pub trait Model<T> : Send {
+    fn handle(&mut self, data: &engine::Data<T>);
+    #[allow(unused_variables)]
+    fn share(&self, data: &mut T, camera: &mut camera::Camera) {}
+    fn get_state(&self) -> TaskState {TaskState::DontDraw}
 }
 
 pub trait Task<T> {
-    fn handle(&mut self, tasklist: &mut TaskList<T>, data: &engine::Data<T>) -> TaskState;
+    fn get_model(&self) -> &Model<T>;
+    fn get_mut_model(&mut self) -> &mut Model<T>;
+    fn get_new_tasks(&mut self) -> Option<Vec<Box<Task<T>>>> {None}
     #[allow(unused_variables)]
     fn draw<'k>(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {}
-    #[allow(unused_variables)]
-    fn share(&self, data: &mut T, camera: &mut camera::Camera) {}
 }
 
 pub struct TaskList<T> {
-    removeixs: Vec<usize>,
-    should_draw: Vec<bool>,
     tasks: Vec<Box<Task<T>>>,
 }
 
-impl<T> TaskList<T> {
+impl<T: Sync> TaskList<T> {
     pub fn new() -> TaskList<T> {
         TaskList{
-            removeixs: Vec::new(),
-            should_draw: Vec::new(),
             tasks: Vec::new(),
         }
     }
@@ -53,44 +57,37 @@ impl<T> TaskList<T> {
 
     pub fn flush_share(&self, shared_data: &mut T, camera: &mut camera::Camera) {
         for task in self.tasks.iter() {
-            task.share(shared_data, camera);
+            task.get_model().share(shared_data, camera);
         }
     }
 
     pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics) {
-        self.removeixs.clear();
-        self.should_draw.clear();
-        let mut ix:usize = 0;
-
+        let mut pool = scoped_threadpool::Pool::new(num_cpus::get() as u32);
         // handle everybody
-        let mut newtasks = TaskList::new();
-        for task in self.tasks.iter_mut() {
-            let mut tmp_newtasks = TaskList::new();
-            match task.handle(&mut tmp_newtasks, data) {
-                TaskState::Remove => {self.removeixs.push(ix); self.should_draw.push(false)},
-                TaskState::DontDraw => self.should_draw.push(false),
-                TaskState::OK => self.should_draw.push(true),
-            };
-            newtasks.tasks.extend(tmp_newtasks.tasks.into_iter());
-            ix += 1;
-        }
+        pool.scoped(|scope| {
+            for task in &mut self.tasks.iter_mut() {
+                let mut model = task.get_mut_model();
+                scope.execute(move || {
+                    model.handle(data);
+                });
+            }
+        });
         // remove tasks
-        for ix in self.removeixs.iter() {
-            self.tasks.remove(*ix);
-            self.should_draw.remove(*ix);
+        self.tasks.retain(|task| task.get_model().get_state() != TaskState::Remove);
+        // draw!
+        for task in self.tasks.iter_mut() {
+            if task.get_model().get_state() == TaskState::DontDraw {
+                continue
+            }
+            task.draw(&data.camera, graphics);
         }
         // add new tasks
-        self.tasks.extend(newtasks.tasks.into_iter());
-        // draw!
-        ix = 0;
+        let mut newtasks: Vec<Box<Task<T>>> = Vec::new();
         for task in self.tasks.iter_mut() {
-            if ix==self.should_draw.len() {
-                break;
+            if let Some(tasks) = task.get_new_tasks() {
+                newtasks.extend(tasks.into_iter());
             }
-            if self.should_draw[ix] {
-                task.draw(&data.camera, graphics);
-            }
-            ix += 1;
         }
+        self.tasks.extend(newtasks.into_iter());
     }
 }

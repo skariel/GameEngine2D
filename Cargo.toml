@@ -7,3 +7,5 @@ authors = ["Ariel Keselman <skariel@gmail.com>"]
 glium = "*"
 time = "*"
 clippy = "*"
+scoped_threadpool = "*"
+num_cpus = "*"

@@ -17,21 +17,24 @@
 
 #![feature(plugin)]
 #![plugin(clippy)]
-//
+
 #[macro_use]
 extern crate glium;
 extern crate time;
 
 pub mod engine;
 
+use std::rc;
 use engine::{Engine, shapes, tasklist, camera};
 
-use std::rc;
-
-struct MySprite {
+struct MySpriteModel {
     spawned:bool,
     x:f32,
     y:f32,
+}
+
+struct MySpriteTask {
+    model: MySpriteModel,
     fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
 }
 
@@ -39,26 +42,10 @@ struct MySharedData {
     num: i64,
 }
 
-impl tasklist::Task<MySharedData> for MySprite {
-    fn handle(&mut self, tasklist: &mut tasklist::TaskList<MySharedData>, data: &engine::Data<MySharedData>) -> tasklist::TaskState {
+impl tasklist::Model<MySharedData> for MySpriteModel {
+    fn handle(&mut self, data: &engine::Data<MySharedData>) {
         self.x += 0.01;
-        if self.x>-0.3 && !self.spawned {
-            self.spawned = true;
-            tasklist.add(Box::new(MySprite {
-                    spawned: false,
-                    x: -0.9,
-                    y: self.y,
-                    fig: self.fig.clone(),
-                    }));
-        }
-        if self.x>0.7 {
-            return tasklist::TaskState::Remove;
-        }
         println!("global data: {}", data.shared.num);
-        tasklist::TaskState::OK
-    }
-    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
-        graphics.print(&camera, &self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
     fn share(&self, data: &mut MySharedData, camera: &mut camera::Camera) {
         camera.x += 0.0005;
@@ -67,15 +54,48 @@ impl tasklist::Task<MySharedData> for MySprite {
         camera.zoom_y *= 0.999;
         data.num += 1;
     }
+    fn get_state(&self) -> tasklist::TaskState {
+        tasklist::TaskState::Draw
+    }
+}
+
+impl tasklist::Task<MySharedData> for MySpriteTask {
+    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
+        graphics.print(&camera, &self.fig, self.model.x, self.model.y, 0.0, 1.0, 1.0);
+    }
+    fn get_new_tasks(&mut self) -> Option<Vec<Box<tasklist::Task<MySharedData>>>> {
+        if self.model.x>-0.3 && !self.model.spawned {
+            self.model.spawned = true;
+            let mut tasklist: Vec<Box<tasklist::Task<MySharedData>>> = Vec::new();
+            tasklist.push(Box::new(MySpriteTask {
+                    model: MySpriteModel {
+                        spawned: false,
+                        x: -0.9,
+                        y: self.model.y,
+                    },
+                    fig: self.fig.clone(),
+                    }));
+            return Some(tasklist);
+        }
+        None
+    }
+    fn get_model(&self) -> & tasklist::Model<MySharedData> {
+        &self.model
+    }
+    fn get_mut_model(&mut self) -> &mut tasklist::Model<MySharedData> {
+        &mut self.model
+    }
 }
 
 fn main() {
     let mut mg = Engine::new("My Game!".to_owned(), MySharedData{num:1});
     let fig = shapes::get_triangle(&mg.graphics);
-    mg.tasklist.add(Box::new(MySprite {
-        spawned:false,
-        x: -0.9,
-        y: 0.3,
+    mg.tasklist.add(Box::new(MySpriteTask {
+        model: MySpriteModel {
+            spawned:false,
+            x: -0.9,
+            y: 0.3,
+        },
         fig: rc::Rc::new(fig),
         }));
 

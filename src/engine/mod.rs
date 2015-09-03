@@ -16,6 +16,8 @@
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 extern crate glium;
+extern crate scoped_threadpool;
+extern crate num_cpus;
 
 pub mod mouse;
 pub mod keyboard;
@@ -49,7 +51,7 @@ pub struct Engine<'a, T> {
     pub shared_data: T,
 }
 
-impl<'a, T> Engine<'a, T> {
+impl<'a, T: Sync> Engine<'a, T> {
     pub fn new(title: String, shared_data: T) -> Engine<'a, T> {
         Engine {
             graphics: graphics::Graphics::new(title),

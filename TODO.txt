@@ -11,8 +11,10 @@ Features:
 - a second pass for filtering?
 - clipping?
 - custom shaders
-- parallel execution of `handle`, `share` and `draw` (in tasklist)
+- More parallel execution
 
 Refactorings:
 
 - some iterations over mouse dragging, see inline todos
+- some better names for task stuff (sprite? separate task/sprite?)
+- dont create the pool every iteration...
