@@ -17,7 +17,7 @@
 
 use glium;
 use glium::{DisplayBuild, Surface};
-use engine::{surface, window, mouse, keyboard, shapes, camera};
+use engine::{window, mouse, keyboard, shapes, camera};
 
 pub struct Graphics<'a> {
     display: glium::backend::glutin_backend::GlutinFacade,
@@ -25,7 +25,6 @@ pub struct Graphics<'a> {
     program: glium::Program,
     target: glium::Frame,
     draw_parameters: glium::DrawParameters<'a>,
-    pub camera: camera::Camera,
     pub window: window::Window,
 }
 
@@ -134,23 +133,22 @@ impl<'a> Graphics<'a> {
             program: program,
             target: target,
             draw_parameters: draw_parameters,
-            camera: camera::Camera::new(),
             window: window::Window::new(wx, wy),
         }
     }
 
-    pub fn print(&mut self, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, rotation: f32, zoom_x: f32, zoom_y: f32) {
+    pub fn print(&mut self, camera: &camera::Camera, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, rotation: f32, zoom_x: f32, zoom_y: f32) {
         let uniforms = uniform! {
             tx : tx,
             ty : ty,
-            camera_x: self.camera.x,
-            camera_y: self.camera.y,
+            camera_x: camera.x,
+            camera_y: camera.y,
             rotation: rotation,
-            camera_rotation: self.camera.rotation,
+            camera_rotation: camera.rotation,
             zoom_x: zoom_x,
             zoom_y: zoom_y,
-            camera_zoom_x: self.camera.zoom_x,
-            camera_zoom_y: self.camera.zoom_y,
+            camera_zoom_x: camera.zoom_x,
+            camera_zoom_y: camera.zoom_y,
             aspect_ratio_y: self.window.aspect_ratio_y,
         };
         self.target.draw(shape, &self.indices, &self.program, &uniforms,
@@ -159,10 +157,6 @@ impl<'a> Graphics<'a> {
 
     pub fn compile(&self, shape: &[shapes::Vertex]) -> glium::VertexBuffer<shapes::Vertex> {
         glium::VertexBuffer::new(&self.display, &shape).unwrap()
-    }
-
-    pub fn print_params(&mut self, params: &surface::DrawParams) {
-        self.print(&params.shape, params.tx, params.ty, params.rotation, params.zoom_x, params.zoom_y);
     }
 
     pub fn flush(&mut self) {

@@ -16,7 +16,7 @@
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 use engine;
-use engine::{surface, camera};
+use engine::{camera};
 
 pub enum TaskState {
     Remove,
@@ -27,7 +27,7 @@ pub enum TaskState {
 pub trait Task<T> {
     fn handle(&mut self, tasklist: &mut TaskList<T>, data: &engine::Data<T>) -> TaskState;
     #[allow(unused_variables)]
-    fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {}
+    fn draw<'k>(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {}
     #[allow(unused_variables)]
     fn share(&self, data: &mut T, camera: &mut camera::Camera) {}
 }
@@ -53,10 +53,9 @@ impl<T> TaskList<T> {
         }
     }
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>) -> surface::Surface {
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics) {
         let mut removeixs: Vec<usize> = Vec::new();
         let mut should_draw: Vec<bool> = Vec::new();
-        let mut surface = surface::Surface::new();
         let mut ix:usize = 0;
         // TODO: optimize the should_draw vector. Size is known...
 
@@ -86,12 +85,9 @@ impl<T> TaskList<T> {
                 break;
             }
             if should_draw[ix] {
-                let mut tmp_surface = surface::Surface::new();
-                task.draw(&mut tmp_surface);
-                surface.drawparams.extend(tmp_surface.drawparams.into_iter());
+                task.draw(&data.camera, graphics);
             }
             ix += 1;
         }
-        surface
     }
 }

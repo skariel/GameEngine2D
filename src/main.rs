@@ -24,7 +24,7 @@ extern crate time;
 
 pub mod engine;
 
-use engine::{Engine, surface, shapes, tasklist, camera};
+use engine::{Engine, shapes, tasklist, camera};
 
 use std::rc;
 
@@ -57,8 +57,8 @@ impl tasklist::Task<MySharedData> for MySprite {
         println!("global data: {}", data.shared.num);
         tasklist::TaskState::OK
     }
-    fn draw<'k>(&'k self, surface: &mut surface::Surface<'k>) {
-        surface.draw(&self.fig, self.x, self.y, 0.0, 1.0, 1.0);
+    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
+        graphics.print(&camera, &self.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
     fn share(&self, data: &mut MySharedData, camera: &mut camera::Camera) {
         camera.x += 0.0005;
@@ -94,7 +94,7 @@ fn main() {
 
         let zoom = 1500.0/(mg.graphics.window.size_pixels_x as f32);
         for i in 1..40 {
-            mg.graphics.print(&t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
+            mg.graphics.print(&mg.camera, &t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
         }
         mg.flush();
 

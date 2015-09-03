@@ -23,7 +23,6 @@ pub mod window;
 pub mod framerate;
 pub mod tasklist;
 pub mod time;
-pub mod surface;
 pub mod graphics;
 pub mod shapes;
 pub mod camera;
@@ -41,6 +40,7 @@ pub struct Data<'s, T: 's>  {
 
 pub struct Engine<'a, T> {
     pub graphics: graphics::Graphics<'a>,
+    pub camera: camera::Camera,
     pub framerate: framerate::FrameRate,
     pub mouse: mouse::Mouse,
     pub keyboard: keyboard::Keyboard,
@@ -53,6 +53,7 @@ impl<'a, T> Engine<'a, T> {
     pub fn new(title: String, shared_data: T) -> Engine<'a, T> {
         Engine {
             graphics: graphics::Graphics::new(title),
+            camera: camera::Camera::new(),
             framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
             mouse: mouse::Mouse::new(),
             keyboard: keyboard::Keyboard::new(),
@@ -67,19 +68,17 @@ impl<'a, T> Engine<'a, T> {
         self.time.flush();
         self.graphics.flush();
         self.graphics.poll_events(&mut self.mouse, &mut self.keyboard);
-        self.tasklist.flush_share(&mut self.shared_data, &mut self.graphics.camera);
-        let surface = self.tasklist.flush_handle_and_draw(
+        self.tasklist.flush_share(&mut self.shared_data, &mut self.camera);
+        self.tasklist.flush_handle_and_draw(
             &Data {
                 keyboard: &self.keyboard,
                 mouse: &self.mouse,
                 time: &self.time,
                 framerate: &self.framerate,
-                camera: &self.graphics.camera,
+                camera: &self.camera,
                 shared: &self.shared_data,
-            }
+            },
+            &mut self.graphics,
         );
-        for params in surface.drawparams.iter() {
-            self.graphics.print_params(params);
-        }
     }
 }
