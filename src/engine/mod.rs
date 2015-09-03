@@ -49,6 +49,7 @@ pub struct Engine<'a, T> {
     pub time: time::Time,
     pub tasklist: tasklist::TaskList<T>,
     pub shared_data: T,
+    pool: scoped_threadpool::Pool,
 }
 
 impl<'a, T: Sync> Engine<'a, T> {
@@ -62,6 +63,7 @@ impl<'a, T: Sync> Engine<'a, T> {
             time: time::Time::new(),
             tasklist: tasklist::TaskList::new(),
             shared_data: shared_data,
+            pool: scoped_threadpool::Pool::new(num_cpus::get() as u32),
         }
     }
 
@@ -81,6 +83,7 @@ impl<'a, T: Sync> Engine<'a, T> {
                 shared: &self.shared_data,
             },
             &mut self.graphics,
+            &mut self.pool,
         );
     }
 }

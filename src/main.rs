@@ -55,6 +55,9 @@ impl tasklist::Model<MySharedData> for MySpriteModel {
         data.num += 1;
     }
     fn get_state(&self) -> tasklist::TaskState {
+        if self.x > 1.1 {
+            return tasklist::TaskState::Remove;
+        }
         tasklist::TaskState::Draw
     }
 }

@@ -16,7 +16,7 @@
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 use engine;
-use engine::{camera, scoped_threadpool, num_cpus};
+use engine::{camera, scoped_threadpool};
 
 #[derive(PartialEq)]
 pub enum TaskState {
@@ -61,26 +61,33 @@ impl<T: Sync> TaskList<T> {
         }
     }
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics) {
-        let mut pool = scoped_threadpool::Pool::new(num_cpus::get() as u32);
-        // handle everybody
+    fn handle_everybody(&mut self, data: &engine::Data<T>, pool: &mut scoped_threadpool::Pool) {
         pool.scoped(|scope| {
-            for task in &mut self.tasks.iter_mut() {
+            for task in self.tasks.iter_mut() {
                 let mut model = task.get_mut_model();
                 scope.execute(move || {
                     model.handle(data);
                 });
             }
         });
-        // remove tasks
-        self.tasks.retain(|task| task.get_model().get_state() != TaskState::Remove);
-        // draw!
-        for task in self.tasks.iter_mut() {
-            if task.get_model().get_state() == TaskState::DontDraw {
+    }
+
+    fn draw_everybody(&self, camera: &engine::camera::Camera, graphics: &mut engine::graphics::Graphics) {
+        for task in self.tasks.iter() {
+            if task.get_model().get_state() != TaskState::Draw {
                 continue
             }
-            task.draw(&data.camera, graphics);
+            task.draw(camera, graphics);
         }
+    }
+
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {        
+        // handle everybody
+        self.handle_everybody(data, pool);
+        // draw!
+        self.draw_everybody(&data.camera, graphics);
+        // remove tasks
+        self.tasks.retain(|task| task.get_model().get_state() != TaskState::Remove);
         // add new tasks
         let mut newtasks: Vec<Box<Task<T>>> = Vec::new();
         for task in self.tasks.iter_mut() {
