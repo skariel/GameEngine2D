@@ -32,12 +32,16 @@ pub trait Model<T> : Send {
     fn get_state(&self) -> TaskState {TaskState::DontDraw}
 }
 
+pub trait Drawable {
+    #[allow(unused_variables)]
+    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {}
+}
+
 pub trait Task<T> {
     fn get_model(&self) -> &Model<T>;
     fn get_mut_model(&mut self) -> &mut Model<T>;
     fn get_new_tasks(&mut self) -> Option<Vec<Box<Task<T>>>> {None}
-    #[allow(unused_variables)]
-    fn draw<'k>(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {}
+    fn get_drawable(&self) -> Box<Drawable>;
 }
 
 pub struct TaskList<T> {
@@ -61,7 +65,12 @@ impl<T: Sync> TaskList<T> {
         }
     }
 
-    fn handle_everybody(&mut self, data: &engine::Data<T>, pool: &mut scoped_threadpool::Pool) {
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {
+        // handle and draw...
+        let mut drawables: Vec<Box<Drawable>> = Vec::new();
+        for task in self.tasks.iter() {
+            drawables.push(task.get_drawable());
+        }
         pool.scoped(|scope| {
             for task in self.tasks.iter_mut() {
                 let mut model = task.get_mut_model();
@@ -69,23 +78,11 @@ impl<T: Sync> TaskList<T> {
                     model.handle(data);
                 });
             }
-        });
-    }
-
-    fn draw_everybody(&self, camera: &engine::camera::Camera, graphics: &mut engine::graphics::Graphics) {
-        for task in self.tasks.iter() {
-            if task.get_model().get_state() != TaskState::Draw {
-                continue
+            for drawable in drawables {
+                drawable.draw(&data.camera, graphics);
             }
-            task.draw(camera, graphics);
-        }
-    }
+        });
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {
-        // handle everybody
-        self.handle_everybody(data, pool);
-        // draw!
-        self.draw_everybody(&data.camera, graphics);
         // remove tasks
         self.tasks.retain(|task| task.get_model().get_state() != TaskState::Remove);
         // add new tasks

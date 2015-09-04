@@ -38,8 +38,20 @@ struct MySpriteTask {
     fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
 }
 
+struct MySpriteDrawable {
+    fig: rc::Rc<glium::VertexBuffer<shapes::Vertex>>,
+    x: f32,
+    y: f32,
+}
+
 struct MySharedData {
     num: i64,
+}
+
+impl tasklist::Drawable for MySpriteDrawable {
+    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
+        graphics.print(&camera, &self.fig, self.x, self.y, 0.0, 1.0, 1.0);
+    }
 }
 
 impl tasklist::Model<MySharedData> for MySpriteModel {
@@ -63,9 +75,14 @@ impl tasklist::Model<MySharedData> for MySpriteModel {
 }
 
 impl tasklist::Task<MySharedData> for MySpriteTask {
-    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
-        graphics.print(&camera, &self.fig, self.model.x, self.model.y, 0.0, 1.0, 1.0);
+    fn get_drawable(&self) -> Box<tasklist::Drawable> {
+        Box::new(MySpriteDrawable {
+            x: self.model.x,
+            y: self.model.y,
+            fig: self.fig.clone(),
+        })
     }
+
     fn get_new_tasks(&mut self) -> Option<Vec<Box<tasklist::Task<MySharedData>>>> {
         if self.model.x>-0.3 && !self.model.spawned {
             self.model.spawned = true;
