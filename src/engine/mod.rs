@@ -50,6 +50,7 @@ pub struct Engine<'a, T> {
     pub tasklist: tasklist::TaskList<T>,
     pub shared_data: T,
     pool: scoped_threadpool::Pool,
+    drawables: Vec<Box<tasklist::Drawable>>,
 }
 
 impl<'a, T: Sync> Engine<'a, T> {
@@ -64,6 +65,7 @@ impl<'a, T: Sync> Engine<'a, T> {
             tasklist: tasklist::TaskList::new(),
             shared_data: shared_data,
             pool: scoped_threadpool::Pool::new(num_cpus::get() as u32),
+            drawables: Vec::new(),
         }
     }
 
@@ -84,6 +86,7 @@ impl<'a, T: Sync> Engine<'a, T> {
             },
             &mut self.graphics,
             &mut self.pool,
+            &mut self.drawables,
         );
     }
 }

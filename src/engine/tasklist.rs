@@ -65,9 +65,9 @@ impl<T: Sync> TaskList<T> {
         }
     }
 
-    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool) {
+    pub fn flush_handle_and_draw(&mut self, data: &engine::Data<T>, graphics: &mut engine::graphics::Graphics, pool: &mut scoped_threadpool::Pool, drawables: &mut Vec<Box<Drawable>>) {
         // handle and draw...
-        let mut drawables: Vec<Box<Drawable>> = Vec::new();
+        drawables.clear();
         for task in self.tasks.iter() {
             drawables.push(task.get_drawable());
         }
