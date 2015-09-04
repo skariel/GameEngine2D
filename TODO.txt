@@ -7,10 +7,13 @@ Features:
 - A few more printing functions (e.g. highlight, outer border, ect.)
 - Lighting, normals!
 - Integrate mouse with camera
-- Multiple surfaces?
+- Multiple cameras
+- Clipping the drawings
 - a second pass for filtering?
-- clipping?
 - custom shaders
+- diff camera movements
+- mouse dragging relative to camera
+- How do we know mouse clicked on a visible part of the sprite?
 
 Refactorings:
 
