@@ -6,14 +6,17 @@ Features:
 - A few more shaders (e.g. colors)
 - A few more printing functions (e.g. highlight, outer border, ect.)
 - Lighting, normals!
-- Integrate mouse with camera
+- Integrate mouse with camera (e.g dragging relative toi camera, etc.)
 - Multiple cameras
 - Clipping the drawings
 - a second pass for filtering?
 - custom shaders
 - diff camera movements
-- mouse dragging relative to camera
 - How do we know mouse clicked on a visible part of the sprite?
+- Depth?
+- Abstraction for individual sprites (vs Task) ie:
+    - Develop a task that can handle many similar Sprites
+    - this task should use parallelization, etc.
 
 Refactorings:
 
