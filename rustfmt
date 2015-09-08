@@ -1,6 +1,6 @@
 #!/bin/bash
 git add .
 git commit -am "rustfmt"
-rustfmt /src/main.rs
-rm src/*.bk
-rm src/engine/*.bk
+rustfmt ./src/main.rs
+rm ./src/*.bk
+rm ./src/engine/*.bk
