@@ -39,7 +39,7 @@ pub trait Drawable {
 
 pub trait Task<SharedDataType> {
     fn get_model(&self) -> &Model<SharedDataType>;
-    fn get_mut_model(&mut self) -> &mut Model<SharedDataType>;
+    fn get_model_mut(&mut self) -> &mut Model<SharedDataType>;
     fn get_new_tasks(&mut self) -> Option<Vec<Box<Task<SharedDataType>>>> {None}
     fn get_drawable(&self) -> Box<Drawable>;
 }
@@ -73,7 +73,7 @@ impl<SharedDataType: Sync> TaskList<SharedDataType> {
         }
         pool.scoped(|scope| {
             for task in self.tasks.iter_mut() {
-                let mut model = task.get_mut_model();
+                let mut model = task.get_model_mut();
                 scope.execute(move || {
                     model.handle(shared_data);
                 });

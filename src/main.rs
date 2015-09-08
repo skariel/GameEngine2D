@@ -102,7 +102,7 @@ impl tasklist::Task<MySharedData> for MySpriteTask {
     fn get_model(&self) -> & tasklist::Model<MySharedData> {
         &self.model
     }
-    fn get_mut_model(&mut self) -> &mut tasklist::Model<MySharedData> {
+    fn get_model_mut(&mut self) -> &mut tasklist::Model<MySharedData> {
         &mut self.model
     }
 }
