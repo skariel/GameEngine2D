@@ -26,10 +26,7 @@ pub struct Time {
 
 impl Time {
     pub fn new() -> Time {
-        let mut t = Time{
-            curr_time_ms: 0f64,
-            dt_ms: 0f64,
-        };
+        let mut t = Time { curr_time_ms: 0f64, dt_ms: 0f64 };
         t.flush();
         t
     }

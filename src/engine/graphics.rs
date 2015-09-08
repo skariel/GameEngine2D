@@ -116,10 +116,11 @@ impl<'a> Graphics<'a> {
                 destination:  glium::draw_parameters::LinearBlendingFactor::OneMinusSourceAlpha
             }),
             dithering: true,
-            .. Default::default()
+            ..Default::default()
         };
 
-        let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+        let program = glium::Program::from_source(&display, vertex_shader_src,
+            fragment_shader_src, None).unwrap();
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
         target.set_finish().unwrap();
@@ -127,7 +128,7 @@ impl<'a> Graphics<'a> {
         target.clear_color(0.0, 0.0, 0.0, 1.0);
 
         let (wx, wy) = display.get_framebuffer_dimensions();
-        Graphics{
+        Graphics {
             display: display,
             indices: indices,
             program: program,
@@ -137,7 +138,14 @@ impl<'a> Graphics<'a> {
         }
     }
 
-    pub fn print(&mut self, camera: &camera::Camera, shape: &glium::VertexBuffer<shapes::Vertex>, tx: f32, ty: f32, rotation: f32, zoom_x: f32, zoom_y: f32) {
+    pub fn print(&mut self,
+                 camera: &camera::Camera,
+                 shape: &glium::VertexBuffer<shapes::Vertex>,
+                 tx: f32,
+                 ty: f32,
+                 rotation: f32,
+                 zoom_x: f32,
+                 zoom_y: f32) {
         let uniforms = uniform! {
             tx : tx,
             ty : ty,
@@ -171,18 +179,17 @@ impl<'a> Graphics<'a> {
 
         for ev in self.display.poll_events() {
             match ev {
-                glium::glutin::Event::Resized(wx, wy) =>
-                    {
-                        let new_window = window::Window::new(wx, wy);
-                        mouse.rescale(&self.window, &new_window);
-                        self.window = new_window;
-                    },
+                glium::glutin::Event::Resized(wx, wy) => {
+                    let new_window = window::Window::new(wx, wy);
+                    mouse.rescale(&self.window, &new_window);
+                    self.window = new_window;
+                }
                 glium::glutin::Event::Closed => self.window.closed = true,
                 glium::glutin::Event::MouseMoved((x,y)) => mouse.moved(x,y,&self.window),
                 glium::glutin::Event::MouseWheel(w) =>
                     if let glium::glutin::MouseScrollDelta::LineDelta(dx,dy) = w {
-                        mouse.wheel(dx,dy);
-                    },
+                    mouse.wheel(dx,dy);
+                },
                 glium::glutin::Event::MouseInput(elementstate, mousebutton) => {
                     let mybuttonstate = match elementstate {
                         glium::glutin::ElementState::Pressed => mouse::ButtonState::Pressed,
@@ -195,7 +202,7 @@ impl<'a> Graphics<'a> {
                         _ => mouse::Button::Other,
                     };
                     mouse.button(mymousebutton, mybuttonstate);
-                },
+                }
                 glium::glutin::Event::KeyboardInput(gstate, gid, _) => {
                     let state = match gstate {
                         glium::glutin::ElementState::Pressed => keyboard::KeyState::Pressed,
@@ -203,7 +210,7 @@ impl<'a> Graphics<'a> {
                     };
                     let id = keyboard::KeyId(gid);
                     keyboard.key(id, state);
-                },
+                }
                 _ => (),
             }
         };

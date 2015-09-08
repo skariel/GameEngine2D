@@ -25,12 +25,6 @@ pub struct Camera {
 
 impl Camera {
     pub fn new() -> Camera {
-        Camera {
-            x: 0.0,
-            y: 0.0,
-            zoom_x: 1.0,
-            zoom_y: 1.0,
-            rotation: 0.0,
-        }
+        Camera { x: 0.0, y: 0.0, zoom_x: 1.0, zoom_y: 1.0, rotation: 0.0 }
     }
 }

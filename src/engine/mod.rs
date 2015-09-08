@@ -32,7 +32,7 @@ pub mod camera;
 
 const FRAMERATE_FRAMES: usize = 128;
 
-pub struct Data<'s, SharedDataType: 's>  {
+pub struct Data<'s, SharedDataType: 's> {
     pub framerate: &'s framerate::FrameRate,
     pub mouse: &'s mouse::Mouse,
     pub keyboard: &'s keyboard::Keyboard,

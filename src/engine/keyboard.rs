@@ -47,47 +47,49 @@ pub enum Key {
     Space,
     Enter,
     Backspace,
-    Other{id:KeyId},
+    Other {
+        id: KeyId,
+    },
 }
 
 pub struct Keyboard {
-    pub up        : KeyState,
-    pub dup       : DKeyState,
-    pub down      : KeyState,
-    pub ddown     : DKeyState,
-    pub left      : KeyState,
-    pub dleft     : DKeyState,
-    pub right     : KeyState,
-    pub dright    : DKeyState,
-    pub space     : KeyState,
-    pub dspace    : DKeyState,
-    pub enter     : KeyState,
-    pub denter    : DKeyState,
-    pub backspace : KeyState,
+    pub up: KeyState,
+    pub dup: DKeyState,
+    pub down: KeyState,
+    pub ddown: DKeyState,
+    pub left: KeyState,
+    pub dleft: DKeyState,
+    pub right: KeyState,
+    pub dright: DKeyState,
+    pub space: KeyState,
+    pub dspace: DKeyState,
+    pub enter: KeyState,
+    pub denter: DKeyState,
+    pub backspace: KeyState,
     pub dbackspace: DKeyState,
-    pub keys      : [KeyState; 256],
-    pub dkeys     : [DKeyState; 256],
+    pub keys: [KeyState; 256],
+    pub dkeys: [DKeyState; 256],
 }
 
 impl Keyboard {
     pub fn new() -> Keyboard {
         Keyboard {
-            up        : KeyState::Released,
-            dup       : DKeyState::Boring,
-            down      : KeyState::Released,
-            ddown     : DKeyState::Boring,
-            left      : KeyState::Released,
-            dleft     : DKeyState::Boring,
-            right     : KeyState::Released,
-            dright    : DKeyState::Boring,
-            space     : KeyState::Released,
-            dspace    : DKeyState::Boring,
-            enter     : KeyState::Released,
-            denter    : DKeyState::Boring,
-            backspace : KeyState::Released,
+            up: KeyState::Released,
+            dup: DKeyState::Boring,
+            down: KeyState::Released,
+            ddown: DKeyState::Boring,
+            left: KeyState::Released,
+            dleft: DKeyState::Boring,
+            right: KeyState::Released,
+            dright: DKeyState::Boring,
+            space: KeyState::Released,
+            dspace: DKeyState::Boring,
+            enter: KeyState::Released,
+            denter: DKeyState::Boring,
+            backspace: KeyState::Released,
             dbackspace: DKeyState::Boring,
-            keys      : [KeyState::Released; 256],
-            dkeys     : [DKeyState::Boring; 256],
+            keys: [KeyState::Released; 256],
+            dkeys: [DKeyState::Boring; 256],
         }
     }
 
@@ -105,13 +107,34 @@ impl Keyboard {
         self.keys[keyid.0 as usize] = state;
         self.dkeys[keyid.0 as usize] = dstate;
         match keyid {
-            KEYID_UP => { self.up=state; self.dup=dstate;},
-            KEYID_DOWN => { self.down=state; self.ddown=dstate;},
-            KEYID_LEFT => { self.left=state; self.dleft=dstate;},
-            KEYID_RIGHT => { self.right=state; self.dright=dstate;},
-            KEYID_SPACE => { self.space=state; self.dspace=dstate;},
-            KEYID_BACKSPACE => { self.backspace=state; self.dbackspace=dstate;},
-            KEYID_ENTER => { self.enter=state; self.denter=dstate;},
+            KEYID_UP => {
+                self.up = state;
+                self.dup = dstate;
+            }
+            KEYID_DOWN => {
+                self.down = state;
+                self.ddown = dstate;
+            }
+            KEYID_LEFT => {
+                self.left = state;
+                self.dleft = dstate;
+            }
+            KEYID_RIGHT => {
+                self.right = state;
+                self.dright = dstate;
+            }
+            KEYID_SPACE => {
+                self.space = state;
+                self.dspace = dstate;
+            }
+            KEYID_BACKSPACE => {
+                self.backspace = state;
+                self.dbackspace = dstate;
+            }
+            KEYID_ENTER => {
+                self.enter = state;
+                self.denter = dstate;
+            }
             _ => (),
         }
     }

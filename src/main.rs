@@ -28,9 +28,9 @@ use std::rc;
 use engine::{Engine, shapes, tasklist, camera};
 
 struct MySpriteModel {
-    spawned:bool,
-    x:f32,
-    y:f32,
+    spawned: bool,
+    x: f32,
+    y: f32,
 }
 
 struct MySpriteTask {
@@ -63,15 +63,11 @@ impl tasklist::Model<MySharedData> for MySpriteModel {
 
 impl tasklist::Task<MySharedData> for MySpriteTask {
     fn get_drawable(&self) -> Option<Box<tasklist::Drawable>> {
-        Some(Box::new(MySpriteDrawable {
-            x: self.model.x,
-            y: self.model.y,
-            fig: self.fig.clone(),
-        }))
+        Some(Box::new(MySpriteDrawable { x: self.model.x, y: self.model.y, fig: self.fig.clone() }))
     }
 
     fn get_new_tasks(&mut self) -> Option<Vec<Box<tasklist::Task<MySharedData>>>> {
-        if self.model.x>-0.3 && !self.model.spawned {
+        if self.model.x > -0.3 && !self.model.spawned {
             self.model.spawned = true;
             let mut tasklist: Vec<Box<tasklist::Task<MySharedData>>> = Vec::new();
             tasklist.push(Box::new(MySpriteTask {
@@ -86,7 +82,7 @@ impl tasklist::Task<MySharedData> for MySpriteTask {
         }
         None
     }
-    fn get_model(&self) -> & tasklist::Model<MySharedData> {
+    fn get_model(&self) -> &tasklist::Model<MySharedData> {
         &self.model
     }
     fn get_model_mut(&mut self) -> &mut tasklist::Model<MySharedData> {
@@ -108,7 +104,7 @@ impl tasklist::Task<MySharedData> for MySpriteTask {
 }
 
 fn main() {
-    let mut mg = Engine::new("My Game!".to_owned(), MySharedData{num:1});
+    let mut mg = Engine::new("My Game!".to_owned(), MySharedData { num: 1 });
     let fig = shapes::get_triangle(&mg.graphics);
     mg.tasklist.add(Box::new(MySpriteTask {
         model: MySpriteModel {
@@ -132,19 +128,20 @@ fn main() {
             t += 0.02;
         };
 
-        let zoom = 1500.0/(mg.graphics.window.size_pixels_x as f32);
+        let zoom = 1500.0 / (mg.graphics.window.size_pixels_x as f32);
         for i in 1..40 {
             mg.graphics.print(&mg.camera, &t1, tx, ty, 3.0*t*(i as f32)/100.0,zoom,zoom);
         }
         mg.flush();
 
         println!("framerate: {}", mg.framerate.get_framerate());
-        println!("mouse x,y: {},{} left {:?}, right {:?}", mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
+        println!("mouse x,y: {},{} left {:?}, right {:?}",
+            mg.mouse.x, mg.mouse.y,mg.mouse.left,mg.mouse.right);
         println!("up: {:?}", mg.keyboard.up);
 
         if let engine::mouse::ButtonState::Drag{x:_,y:_} = mg.mouse.left {
-            tx=mg.mouse.x;
-            ty=mg.mouse.y;
+            tx = mg.mouse.x;
+            ty = mg.mouse.y;
             println!("DRAGGING!!!!!!!!!!!!!!!!");
         };
         if mg.mouse.dleft == engine::mouse::DButtonState::Pressed {

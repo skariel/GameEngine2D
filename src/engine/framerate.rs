@@ -25,8 +25,8 @@ Calculate the framerate based on the last `total_frames` frames
 
 pub struct FrameRate {
     frames_ns: Vec<u64>, // this contains the time for each frame in nano seconds
-    frame_f: usize,      // final frame index
-    frame_i: usize,      // initial frame index
+    frame_f: usize, // final frame index
+    frame_i: usize, // initial frame index
 }
 
 impl FrameRate {
@@ -36,11 +36,7 @@ impl FrameRate {
             v.push(0);
         };
         v[total_frames-1] = 1;
-        FrameRate {
-            frames_ns: v,
-            frame_f: total_frames-1,
-            frame_i: 0,
-        }
+        FrameRate { frames_ns: v, frame_f: total_frames - 1, frame_i: 0 }
     }
     pub fn flush(&mut self) {
         // insert new frame
