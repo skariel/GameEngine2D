@@ -59,28 +59,15 @@ impl tasklist::Model<MySharedData> for MySpriteModel {
         self.x += 0.01;
         println!("global data: {}", shared_data.user_shared_data.num);
     }
-    fn share(&self, shared_data: &mut MySharedData, camera: &mut camera::Camera) {
-        camera.x += 0.0005;
-        camera.rotation += 0.003;
-        camera.zoom_x *= 0.999;
-        camera.zoom_y *= 0.999;
-        shared_data.num += 1;
-    }
-    fn get_state(&self) -> tasklist::TaskState {
-        if self.x > 1.1 {
-            return tasklist::TaskState::Remove;
-        }
-        tasklist::TaskState::Draw
-    }
 }
 
 impl tasklist::Task<MySharedData> for MySpriteTask {
-    fn get_drawable(&self) -> Box<tasklist::Drawable> {
-        Box::new(MySpriteDrawable {
+    fn get_drawable(&self) -> Option<Box<tasklist::Drawable>> {
+        Some(Box::new(MySpriteDrawable {
             x: self.model.x,
             y: self.model.y,
             fig: self.fig.clone(),
-        })
+        }))
     }
 
     fn get_new_tasks(&mut self) -> Option<Vec<Box<tasklist::Task<MySharedData>>>> {
@@ -104,6 +91,19 @@ impl tasklist::Task<MySharedData> for MySpriteTask {
     }
     fn get_model_mut(&mut self) -> &mut tasklist::Model<MySharedData> {
         &mut self.model
+    }
+    fn share(&self, shared_data: &mut MySharedData, camera: &mut camera::Camera) {
+        camera.x += 0.0005;
+        camera.rotation += 0.003;
+        camera.zoom_x *= 0.999;
+        camera.zoom_y *= 0.999;
+        shared_data.num += 1;
+    }
+    fn get_state(&self) -> tasklist::TaskState {
+        if self.model.x > 1.1 {
+            return tasklist::TaskState::Remove;
+        }
+        tasklist::TaskState::Continue
     }
 }
 

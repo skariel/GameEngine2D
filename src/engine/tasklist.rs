@@ -21,27 +21,25 @@ use engine::{camera, scoped_threadpool};
 #[derive(PartialEq)]
 pub enum TaskState {
     Remove,
-    Draw,
-    DontDraw,
+    Continue,
 }
 
 pub trait Model<SharedDataType> : Send {
     fn handle(&mut self, shared_data: &engine::Data<SharedDataType>);
-    #[allow(unused_variables)]
-    fn share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera) {}
-    fn get_state(&self) -> TaskState {TaskState::DontDraw}
 }
 
 pub trait Drawable {
-    #[allow(unused_variables)]
-    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {}
+    fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics);
 }
 
 pub trait Task<SharedDataType> {
     fn get_model(&self) -> &Model<SharedDataType>;
     fn get_model_mut(&mut self) -> &mut Model<SharedDataType>;
     fn get_new_tasks(&mut self) -> Option<Vec<Box<Task<SharedDataType>>>> {None}
-    fn get_drawable(&self) -> Box<Drawable>;
+    fn get_drawable(&self) -> Option<Box<Drawable>> {None}
+    #[allow(unused_variables)]
+    fn share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera) {}
+    fn get_state(&self) -> TaskState {TaskState::Continue}
 }
 
 pub struct TaskList<SharedDataType> {
@@ -61,7 +59,7 @@ impl<SharedDataType: Sync> TaskList<SharedDataType> {
 
     pub fn flush_share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera) {
         for task in self.tasks.iter() {
-            task.get_model().share(shared_data, camera);
+            task.share(shared_data, camera);
         }
     }
 
@@ -69,7 +67,9 @@ impl<SharedDataType: Sync> TaskList<SharedDataType> {
         // handle and draw...
         drawables.clear();
         for task in self.tasks.iter() {
-            drawables.push(task.get_drawable());
+            if let Some(drawable) = task.get_drawable() {
+                drawables.push(drawable);
+            }
         }
         pool.scoped(|scope| {
             for task in self.tasks.iter_mut() {
@@ -83,7 +83,7 @@ impl<SharedDataType: Sync> TaskList<SharedDataType> {
             }
         });
         // remove tasks
-        self.tasks.retain(|task| task.get_model().get_state() != TaskState::Remove);
+        self.tasks.retain(|task| task.get_state() != TaskState::Remove);
         // add new tasks
         let mut newtasks: Vec<Box<Task<SharedDataType>>> = Vec::new();
         for task in self.tasks.iter_mut() {
