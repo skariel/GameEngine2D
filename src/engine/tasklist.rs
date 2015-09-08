@@ -21,7 +21,7 @@ use engine::{camera, scoped_threadpool};
 #[derive(PartialEq)]
 pub enum TaskState {
     Remove,
-    Continue,
+    Keep,
 }
 
 pub trait Model<SharedDataType> : Send {
@@ -39,7 +39,7 @@ pub trait Task<SharedDataType> {
     fn get_drawable(&self) -> Option<Box<Drawable>> {None}
     #[allow(unused_variables)]
     fn share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera) {}
-    fn get_state(&self) -> TaskState {TaskState::Continue}
+    fn get_state(&self) -> TaskState {TaskState::Keep}
 }
 
 pub struct TaskList<SharedDataType> {

@@ -103,7 +103,7 @@ impl tasklist::Task<MySharedData> for MySpriteTask {
         if self.model.x > 1.1 {
             return tasklist::TaskState::Remove;
         }
-        tasklist::TaskState::Continue
+        tasklist::TaskState::Keep
     }
 }
 
