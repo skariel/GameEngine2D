@@ -1,0 +1,10 @@
+#!/bin/bash
+
+git add .
+git commit -am "rustfmt"
+
+cd ../rustfmt
+cargo run -- ../my_project/src/main.rs
+cd ../my_project
+rm src/*.bk
+rm src/engine/*.bk
