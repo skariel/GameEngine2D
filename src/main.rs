@@ -55,16 +55,16 @@ impl tasklist::Drawable for MySpriteDrawable {
 }
 
 impl tasklist::Model<MySharedData> for MySpriteModel {
-    fn handle(&mut self, data: &engine::Data<MySharedData>) {
+    fn handle(&mut self, shared_data: &engine::Data<MySharedData>) {
         self.x += 0.01;
-        println!("global data: {}", data.shared.num);
+        println!("global data: {}", shared_data.user_shared_data.num);
     }
-    fn share(&self, data: &mut MySharedData, camera: &mut camera::Camera) {
+    fn share(&self, shared_data: &mut MySharedData, camera: &mut camera::Camera) {
         camera.x += 0.0005;
         camera.rotation += 0.003;
         camera.zoom_x *= 0.999;
         camera.zoom_y *= 0.999;
-        data.num += 1;
+        shared_data.num += 1;
     }
     fn get_state(&self) -> tasklist::TaskState {
         if self.x > 1.1 {

@@ -31,30 +31,30 @@ pub mod camera;
 
 const FRAMERATE_FRAMES: usize = 128;
 
-pub struct Data<'s, T: 's>  {
+pub struct Data<'s, SharedDataType: 's>  {
     pub framerate: &'s framerate::FrameRate,
     pub mouse: &'s mouse::Mouse,
     pub keyboard: &'s keyboard::Keyboard,
     pub time: &'s time::Time,
     pub camera: &'s camera::Camera,
-    pub shared: &'s T,
+    pub user_shared_data: &'s SharedDataType,
 }
 
-pub struct Engine<'a, T> {
+pub struct Engine<'a, SharedDataType> {
     pub graphics: graphics::Graphics<'a>,
     pub camera: camera::Camera,
     pub framerate: framerate::FrameRate,
     pub mouse: mouse::Mouse,
     pub keyboard: keyboard::Keyboard,
     pub time: time::Time,
-    pub tasklist: tasklist::TaskList<T>,
-    pub shared_data: T,
+    pub tasklist: tasklist::TaskList<SharedDataType>,
+    pub user_shared_data: SharedDataType,
     pool: scoped_threadpool::Pool,
     drawables: Vec<Box<tasklist::Drawable>>,
 }
 
-impl<'a, T: Sync> Engine<'a, T> {
-    pub fn new(title: String, shared_data: T) -> Engine<'a, T> {
+impl<'a, SharedDataType: Sync> Engine<'a, SharedDataType> {
+    pub fn new(title: String, shared_data: SharedDataType) -> Engine<'a, SharedDataType> {
         Engine {
             graphics: graphics::Graphics::new(title),
             camera: camera::Camera::new(),
@@ -63,7 +63,7 @@ impl<'a, T: Sync> Engine<'a, T> {
             keyboard: keyboard::Keyboard::new(),
             time: time::Time::new(),
             tasklist: tasklist::TaskList::new(),
-            shared_data: shared_data,
+            user_shared_data: shared_data,
             pool: scoped_threadpool::Pool::new(num_cpus::get() as u32),
             drawables: Vec::new(),
         }
@@ -74,7 +74,7 @@ impl<'a, T: Sync> Engine<'a, T> {
         self.time.flush();
         self.graphics.flush();
         self.graphics.poll_events(&mut self.mouse, &mut self.keyboard);
-        self.tasklist.flush_share(&mut self.shared_data, &mut self.camera);
+        self.tasklist.flush_share(&mut self.user_shared_data, &mut self.camera);
         self.tasklist.flush_handle_and_draw(
             &Data {
                 keyboard: &self.keyboard,
@@ -82,7 +82,7 @@ impl<'a, T: Sync> Engine<'a, T> {
                 time: &self.time,
                 framerate: &self.framerate,
                 camera: &self.camera,
-                shared: &self.shared_data,
+                user_shared_data: &self.user_shared_data,
             },
             &mut self.graphics,
             &mut self.pool,

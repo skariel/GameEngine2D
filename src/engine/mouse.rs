@@ -112,7 +112,6 @@ impl Mouse {
         self.y = scaled_y;
 
 
-        // TODO: iterate over these instead of repeating everthing 3 times...
         if let ButtonState::Drag{x,y} = self.left {
             let (scaled_xi, scaled_yi) = rescale_location(x, y, old_window,new_window);
             self.left = ButtonState::Drag{x:scaled_xi, y:scaled_yi};
@@ -139,7 +138,6 @@ impl Mouse {
         self.y = scaled_y;
 
         // testing for new drag
-        // TODO: iterate over these?
         if self.left == ButtonState::Pressed {
             self.left = ButtonState::Drag{x:self.x, y:self.y};
         }
