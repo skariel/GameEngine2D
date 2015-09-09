@@ -23,20 +23,20 @@ use engine::{tasklist, camera};
  *    MODEL IMPLEMENTATION!
  **************************************************************/
 
-pub trait InnerModel<SharedDataType> {
+pub trait SpriteModel<SharedDataType> {
     fn handle(&mut self, shared_data: &engine::Data<SharedDataType>);
     fn share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera);
 }
 
-struct MySpriteModel<SharedDataType, InnerModelType>
-where InnerModelType: InnerModel<SharedDataType> {
-    inner_models:  Vec<InnerModelType>,
+struct SpriteModelList<SharedDataType, SpriteModelType>
+where SpriteModelType: SpriteModel<SharedDataType> {
+    inner_models:  Vec<SpriteModelType>,
     _phantom: marker::PhantomData<SharedDataType>,
 }
 
-impl<SharedDataType, InnerModelType> tasklist::Model<SharedDataType>
-for MySpriteModel<SharedDataType, InnerModelType>
-where InnerModelType: Send + InnerModel<SharedDataType>, SharedDataType: Send {
+impl<SharedDataType, SpriteModelType> tasklist::Model<SharedDataType>
+for SpriteModelList<SharedDataType, SpriteModelType>
+where SpriteModelType: Send + SpriteModel<SharedDataType>, SharedDataType: Send {
     fn handle(&mut self, shared_data: &engine::Data<SharedDataType>) {
         for inner_model in &mut self.inner_models {
             inner_model.handle(shared_data);
@@ -48,19 +48,19 @@ where InnerModelType: Send + InnerModel<SharedDataType>, SharedDataType: Send {
  *    DRAWABLE IMPLEMENTATION!
  **************************************************************/
 
-pub trait InnerDrawable<DrawableUserDataType> {
+pub trait SpriteDrawable<DrawableUserDataType> {
     fn draw(&self, user_data: &DrawableUserDataType, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics);
 }
 
-struct MySpriteDrawable<InnerDrawableType, DrawableUserDataType>
-where InnerDrawableType: InnerDrawable<DrawableUserDataType> {
-    inner_drawables: Vec<InnerDrawableType>,
+struct SpriteDrawableList<SpriteDrawableType, DrawableUserDataType>
+where SpriteDrawableType: SpriteDrawable<DrawableUserDataType> {
+    inner_drawables: Vec<SpriteDrawableType>,
     drawable_user_data: DrawableUserDataType,
 }
 
-impl<InnerDrawableType, DrawableUserDataType> tasklist::Drawable
-for MySpriteDrawable<InnerDrawableType, DrawableUserDataType>
-where InnerDrawableType: InnerDrawable<DrawableUserDataType> {
+impl<SpriteDrawableType, DrawableUserDataType> tasklist::Drawable
+for SpriteDrawableList<SpriteDrawableType, DrawableUserDataType>
+where SpriteDrawableType: SpriteDrawable<DrawableUserDataType> {
     fn draw(&self, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
         for drawable in &self.inner_drawables {
             drawable.draw(&self.drawable_user_data, camera, graphics);
@@ -72,40 +72,40 @@ where InnerDrawableType: InnerDrawable<DrawableUserDataType> {
  *    TASK IMPLEMENTATION!
  **************************************************************/
 
-pub trait InnerTask<SharedDataType, InnerModelType, InnerDrawableType, DrawableUserDataType>
-where InnerModelType: InnerModel<SharedDataType>, InnerDrawableType: InnerDrawable<DrawableUserDataType> {
-    fn get_drawable(&self, inner_model: &InnerModelType) -> InnerDrawableType;
+pub trait Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType>
+where SpriteModelType: SpriteModel<SharedDataType>, SpriteDrawableType: SpriteDrawable<DrawableUserDataType> {
+    fn get_drawable(&self, inner_model: &SpriteModelType) -> SpriteDrawableType;
     fn get_user_drawable_data(&self) -> DrawableUserDataType;
 }
 
-struct MySpriteTask<InnerModelType, InnerTaskType, SharedDataType, InnerDrawableType, DrawableUserDataType>
+struct SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
 where
-    InnerModelType: InnerModel<SharedDataType>,
-    InnerDrawableType: InnerDrawable<DrawableUserDataType>,
-    InnerTaskType: InnerTask<SharedDataType, InnerModelType, InnerDrawableType, DrawableUserDataType> {
+    SpriteModelType: SpriteModel<SharedDataType>,
+    SpriteDrawableType: SpriteDrawable<DrawableUserDataType>,
+    SpriteType: Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType> {
 
-    model: MySpriteModel<SharedDataType, InnerModelType>,
-    inner_task: InnerTaskType,
+    model: SpriteModelList<SharedDataType, SpriteModelType>,
+    inner_task: SpriteType,
     _phantom1: marker::PhantomData<SharedDataType>,
-    _phantom2: marker::PhantomData<InnerDrawableType>,
+    _phantom2: marker::PhantomData<SpriteDrawableType>,
     _phantom3: marker::PhantomData<DrawableUserDataType>,
 }
 
-impl<InnerModelType, InnerTaskType, InnerDrawableType, SharedDataType, DrawableUserDataType> tasklist::Task<SharedDataType>
-for MySpriteTask<InnerModelType, InnerTaskType, SharedDataType, InnerDrawableType, DrawableUserDataType>
+impl<SpriteModelType, SpriteType, SpriteDrawableType, SharedDataType, DrawableUserDataType> tasklist::Task<SharedDataType>
+for SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
 where
     SharedDataType: Send,
     DrawableUserDataType: 'static,
-    InnerModelType: Send + InnerModel<SharedDataType>,
-    InnerDrawableType: 'static + InnerDrawable<DrawableUserDataType>,
-    InnerTaskType: InnerTask<SharedDataType, InnerModelType, InnerDrawableType, DrawableUserDataType> {
+    SpriteModelType: Send + SpriteModel<SharedDataType>,
+    SpriteDrawableType: 'static + SpriteDrawable<DrawableUserDataType>,
+    SpriteType: Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType> {
 
     fn get_drawable(&self) -> Option<Box<tasklist::Drawable>> {
         let mut inner_drawables = Vec::new();
         for model in &self.model.inner_models {
             inner_drawables.push(self.inner_task.get_drawable(model));
         }
-        Some(Box::new(MySpriteDrawable {
+        Some(Box::new(SpriteDrawableList {
             inner_drawables: inner_drawables,
             drawable_user_data: self.inner_task.get_user_drawable_data(),
         }))
