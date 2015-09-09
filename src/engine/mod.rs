@@ -24,7 +24,7 @@ pub mod keyboard;
 pub mod window;
 pub mod framerate;
 pub mod tasklist;
-//pub mod spritelist;
+pub mod spritelist;
 pub mod time;
 pub mod graphics;
 pub mod shapes;

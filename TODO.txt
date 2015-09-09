@@ -14,9 +14,11 @@ Features:
 - diff camera movements
 - How do we know mouse clicked on a visible part of the sprite?
 - Depth?
-- Abstraction for individual sprites (vs Task) ie:
-    - Develop a task that can handle many similar Sprites
-    - this task should use parallelization, etc.
+- Refactor sspritelist/tasklist:
+    - e.g. Is camera needed to pass everywhere? maybe good enough in shared_data?
+    - better naming
+    - missinf functionality like add tasks/sprites etc.
+    - much more...
 
 Refactorings:
 
