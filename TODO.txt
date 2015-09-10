@@ -23,5 +23,6 @@ Features:
 
 Refactorings:
 
+- user drawable data should be a member in the spritelist
 - some iterations over mouse dragging, see inline todos
 - some better names for task stuff (sprite? separate task/sprite?)
