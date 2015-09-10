@@ -29,18 +29,16 @@ pub trait SpriteModel<SharedDataType> {
 }
 
 pub struct SpriteModelList<SharedDataType, SpriteModelType>
-where SpriteModelType: SpriteModel<SharedDataType> {
-    inner_models:  Vec<SpriteModelType>,
+    where SpriteModelType: SpriteModel<SharedDataType>
+{
+    inner_models: Vec<SpriteModelType>,
     _phantom: marker::PhantomData<SharedDataType>,
 }
 
 impl<SharedDataType, SpriteModelType> SpriteModelList<SharedDataType, SpriteModelType>
 where SpriteModelType: Send + SpriteModel<SharedDataType>, SharedDataType: Send {
-    pub fn new() ->  SpriteModelList<SharedDataType, SpriteModelType> {
-        SpriteModelList {
-            inner_models: Vec::new(),
-            _phantom: marker::PhantomData,
-        }
+    pub fn new() -> SpriteModelList<SharedDataType, SpriteModelType> {
+        SpriteModelList { inner_models: Vec::new(), _phantom: marker::PhantomData }
     }
     pub fn push(&mut self, model: SpriteModelType) {
         self.inner_models.push(model);
@@ -62,11 +60,15 @@ where SpriteModelType: Send + SpriteModel<SharedDataType>, SharedDataType: Send 
  **************************************************************/
 
 pub trait SpriteDrawable<DrawableUserDataType> {
-    fn draw(&self, user_data: &DrawableUserDataType, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics);
+    fn draw(&self,
+            user_data: &DrawableUserDataType,
+            camera: &camera::Camera,
+            graphics: &mut engine::graphics::Graphics);
 }
 
 struct SpriteDrawableList<SpriteDrawableType, DrawableUserDataType>
-where SpriteDrawableType: SpriteDrawable<DrawableUserDataType> {
+    where SpriteDrawableType: SpriteDrawable<DrawableUserDataType>
+{
     inner_drawables: Vec<SpriteDrawableType>,
     drawable_user_data: DrawableUserDataType,
 }
@@ -91,12 +93,18 @@ where SpriteModelType: SpriteModel<SharedDataType>, SpriteDrawableType: SpriteDr
     fn get_user_drawable_data(&self) -> DrawableUserDataType;
 }
 
-pub struct SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
-where
-    SpriteModelType: SpriteModel<SharedDataType>,
-    SpriteDrawableType: SpriteDrawable<DrawableUserDataType>,
-    SpriteType: Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType> {
-
+pub struct SpriteList<SpriteModelType,
+                      SpriteType,
+                      SharedDataType,
+                      SpriteDrawableType,
+                      DrawableUserDataType>
+    where SpriteModelType: SpriteModel<SharedDataType>,
+          SpriteDrawableType: SpriteDrawable<DrawableUserDataType>,
+          SpriteType: Sprite<SharedDataType,
+                             SpriteModelType,
+                             SpriteDrawableType,
+                             DrawableUserDataType>
+{
     model: SpriteModelList<SharedDataType, SpriteModelType>,
     inner_task: SpriteType,
     _phantom1: marker::PhantomData<SharedDataType>,
@@ -114,7 +122,9 @@ where
     SpriteDrawableType: 'static + SpriteDrawable<DrawableUserDataType>,
     SpriteType: Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType> {
 
-    pub fn new(sprite: SpriteType) -> SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType> {
+    pub fn new
+               (sprite: SpriteType)
+                -> SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType> {
         SpriteList {
             inner_task: sprite,
             model: SpriteModelList::new(),

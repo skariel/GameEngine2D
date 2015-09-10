@@ -62,7 +62,10 @@ struct MyDrawableData {
 }
 impl spritelist::SpriteDrawable<MyDrawableData>
 for MySpriteDrawable {
-    fn draw(&self, user_data: &MyDrawableData, camera: &camera::Camera, graphics: &mut engine::graphics::Graphics) {
+    fn draw(&self,
+            user_data: &MyDrawableData,
+            camera: &camera::Camera,
+            graphics: &mut engine::graphics::Graphics) {
         graphics.print(&camera, &user_data.fig, self.x, self.y, 0.0, 1.0, 1.0);
     }
 }
@@ -74,15 +77,10 @@ struct MySprite {
 impl spritelist::Sprite<MySharedData, MySpriteModel, MySpriteDrawable, MyDrawableData>
 for MySprite {
     fn get_drawable(&self, sprite_model: &MySpriteModel) -> MySpriteDrawable {
-        MySpriteDrawable {
-            x: sprite_model.x,
-            y: sprite_model.y,
-        }
+        MySpriteDrawable { x: sprite_model.x, y: sprite_model.y }
     }
     fn get_user_drawable_data(&self) -> MyDrawableData {
-        MyDrawableData {
-            fig: self.fig.clone(),
-        }
+        MyDrawableData { fig: self.fig.clone() }
     }
 }
 
