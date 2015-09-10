@@ -98,7 +98,7 @@ fn main() {
             y: 0.1,
     });
 
-    mg.tasklist.add(Box::new(my_sprite_list));
+    mg.tasklist.push(Box::new(my_sprite_list));
 
     let mut t = -8.0f32;
 

@@ -58,7 +58,7 @@ impl<SharedDataType: Sync> TaskList<SharedDataType> {
         TaskList { tasks: Vec::new() }
     }
 
-    pub fn add(&mut self, task: Box<Task<SharedDataType>>) {
+    pub fn push(&mut self, task: Box<Task<SharedDataType>>) {
         self.tasks.push(task);
     }
 
