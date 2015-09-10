@@ -14,7 +14,8 @@ Features:
 - diff camera movements
 - How do we know mouse clicked on a visible part of the sprite?
 - Depth?
-- Refactor sspritelist/tasklist:
+- Shared data domains in engine (for tasks, etc.)
+- Refactor spritelist/tasklist:
     - e.g. Is camera needed to pass everywhere? maybe good enough in shared_data?
     - better naming
     - missinf functionality like add tasks/sprites etc.

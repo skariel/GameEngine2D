@@ -28,10 +28,23 @@ pub trait SpriteModel<SharedDataType> {
     fn share(&self, shared_data: &mut SharedDataType, camera: &mut camera::Camera);
 }
 
-struct SpriteModelList<SharedDataType, SpriteModelType>
+pub struct SpriteModelList<SharedDataType, SpriteModelType>
 where SpriteModelType: SpriteModel<SharedDataType> {
     inner_models:  Vec<SpriteModelType>,
     _phantom: marker::PhantomData<SharedDataType>,
+}
+
+impl<SharedDataType, SpriteModelType> SpriteModelList<SharedDataType, SpriteModelType>
+where SpriteModelType: Send + SpriteModel<SharedDataType>, SharedDataType: Send {
+    pub fn new() ->  SpriteModelList<SharedDataType, SpriteModelType> {
+        SpriteModelList {
+            inner_models: Vec::new(),
+            _phantom: marker::PhantomData,
+        }
+    }
+    pub fn push(&mut self, model: SpriteModelType) {
+        self.inner_models.push(model);
+    }
 }
 
 impl<SharedDataType, SpriteModelType> tasklist::Model<SharedDataType>
@@ -78,7 +91,7 @@ where SpriteModelType: SpriteModel<SharedDataType>, SpriteDrawableType: SpriteDr
     fn get_user_drawable_data(&self) -> DrawableUserDataType;
 }
 
-struct SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
+pub struct SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
 where
     SpriteModelType: SpriteModel<SharedDataType>,
     SpriteDrawableType: SpriteDrawable<DrawableUserDataType>,
@@ -89,6 +102,31 @@ where
     _phantom1: marker::PhantomData<SharedDataType>,
     _phantom2: marker::PhantomData<SpriteDrawableType>,
     _phantom3: marker::PhantomData<DrawableUserDataType>,
+}
+
+
+impl<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
+    SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType>
+where
+    SharedDataType: Send,
+    DrawableUserDataType: 'static,
+    SpriteModelType: Send + SpriteModel<SharedDataType>,
+    SpriteDrawableType: 'static + SpriteDrawable<DrawableUserDataType>,
+    SpriteType: Sprite<SharedDataType, SpriteModelType, SpriteDrawableType, DrawableUserDataType> {
+
+    pub fn new(sprite: SpriteType) -> SpriteList<SpriteModelType, SpriteType, SharedDataType, SpriteDrawableType, DrawableUserDataType> {
+        SpriteList {
+            inner_task: sprite,
+            model: SpriteModelList::new(),
+            _phantom1: marker::PhantomData,
+            _phantom2: marker::PhantomData,
+            _phantom3: marker::PhantomData,
+        }
+    }
+
+    pub fn push(&mut self, sprite_model: SpriteModelType) {
+        self.model.push(sprite_model);
+    }
 }
 
 impl<SpriteModelType, SpriteType, SpriteDrawableType, SharedDataType, DrawableUserDataType> tasklist::Task<SharedDataType>
