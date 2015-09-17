@@ -2,7 +2,6 @@
 name = "GameEngine2D"
 version = "0.1.0"
 dependencies = [
- "clippy 0.0.13 (git+https://github.com/Manishearth/rust-clippy.git)",
  "glium 0.8.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "scoped_threadpool 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -55,14 +54,6 @@ dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "clippy"
-version = "0.0.13"
-source = "git+https://github.com/Manishearth/rust-clippy.git#b5d953bf7df9e91d96c36182b651693cf01ce0bf"
-dependencies = [
- "unicode-normalization 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -452,11 +443,6 @@ dependencies = [
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "unicode-normalization"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "user32-sys"

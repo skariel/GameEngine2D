@@ -9,5 +9,5 @@ time = "*"
 scoped_threadpool = "*"
 num_cpus = "*"
 
-[dependencies.clippy]
-git = "https://github.com/Manishearth/rust-clippy.git"
+# [dependencies.clippy]
+# git = "https://github.com/Manishearth/rust-clippy.git"

@@ -25,7 +25,7 @@ pub mod window;
 pub mod framerate;
 pub mod tasklist;
 pub mod spritelist;
-pub mod time;
+pub mod frame_time;
 pub mod graphics;
 pub mod shapes;
 pub mod camera;
@@ -36,7 +36,7 @@ pub struct Data<'s, SharedDataType: 's> {
     pub framerate: &'s framerate::FrameRate,
     pub mouse: &'s mouse::Mouse,
     pub keyboard: &'s keyboard::Keyboard,
-    pub time: &'s time::Time,
+    pub time: &'s frame_time::Time,
     pub camera: &'s camera::Camera,
     pub user_shared_data: &'s SharedDataType,
 }
@@ -47,7 +47,7 @@ pub struct Engine<'a, SharedDataType> {
     pub framerate: framerate::FrameRate,
     pub mouse: mouse::Mouse,
     pub keyboard: keyboard::Keyboard,
-    pub time: time::Time,
+    pub time: frame_time::Time,
     pub tasklist: tasklist::TaskList<SharedDataType>,
     pub user_shared_data: SharedDataType,
     pool: scoped_threadpool::Pool,
@@ -62,7 +62,7 @@ impl<'a, SharedDataType: Sync> Engine<'a, SharedDataType> {
             framerate: framerate::FrameRate::new(FRAMERATE_FRAMES),
             mouse: mouse::Mouse::new(),
             keyboard: keyboard::Keyboard::new(),
-            time: time::Time::new(),
+            time: frame_time::Time::new(),
             tasklist: tasklist::TaskList::new(),
             user_shared_data: shared_data,
             pool: scoped_threadpool::Pool::new(num_cpus::get() as u32),
