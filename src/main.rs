@@ -16,7 +16,7 @@
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
 #![feature(plugin)]
-// #![plugin(clippy)]
+#![plugin(clippy)]
 
 #[macro_use]
 extern crate glium;
