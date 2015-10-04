@@ -4,10 +4,12 @@ version = "0.1.0"
 authors = ["Ariel Keselman <skariel@gmail.com>"]
 
 [dependencies]
-glium = "*"
 time = "*"
 scoped_threadpool = "*"
 num_cpus = "*"
 
 [dependencies.clippy]
 git = "https://github.com/Manishearth/rust-clippy.git"
+
+[dependencies.glium]
+git = "https://github.com/tomaka/glium/"

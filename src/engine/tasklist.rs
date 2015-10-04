@@ -53,7 +53,7 @@ pub struct TaskList<SharedDataType> {
     tasks: Vec<Box<Task<SharedDataType>>>,
 }
 
-impl<SharedDataType: Sync> TaskList<SharedDataType> {
+impl<SharedDataType: Sync+'static> TaskList<SharedDataType> {
     pub fn new() -> TaskList<SharedDataType> {
         TaskList { tasks: Vec::new() }
     }

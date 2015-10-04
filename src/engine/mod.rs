@@ -54,7 +54,7 @@ pub struct Engine<'a, SharedDataType> {
     drawables: Vec<Box<tasklist::Drawable>>,
 }
 
-impl<'a, SharedDataType: Sync> Engine<'a, SharedDataType> {
+impl<'a, SharedDataType: 'static+Sync> Engine<'a, SharedDataType> {
     pub fn new(title: String, shared_data: SharedDataType) -> Engine<'a, SharedDataType> {
         Engine {
             graphics: graphics::Graphics::new(title),

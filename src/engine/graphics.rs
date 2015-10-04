@@ -111,10 +111,17 @@ impl<'a> Graphics<'a> {
 
         let draw_parameters = glium::DrawParameters {
             smooth: Some(glium::draw_parameters::Smooth::Nicest),
-            blending_function: Some(glium::draw_parameters::BlendingFunction::Addition {
-                source: glium::draw_parameters::LinearBlendingFactor::SourceAlpha,
-                destination:  glium::draw_parameters::LinearBlendingFactor::OneMinusSourceAlpha
-            }),
+            blend: glium::Blend {
+                color: glium::draw_parameters::BlendingFunction::Addition {
+                        source: glium::draw_parameters::LinearBlendingFactor::SourceColor,
+                        destination:  glium::draw_parameters::LinearBlendingFactor::OneMinusSourceColor
+                    },
+                alpha: glium::draw_parameters::BlendingFunction::Addition {
+                        source: glium::draw_parameters::LinearBlendingFactor::SourceAlpha,
+                        destination:  glium::draw_parameters::LinearBlendingFactor::OneMinusSourceAlpha
+                    },
+                constant_value: (0.0, 0.0, 0.0, 0.0),
+            },
             dithering: true,
             ..Default::default()
         };
