@@ -18,7 +18,7 @@
 use glium;
 use engine::graphics;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Vertex {
     position: [f32; 2],
     color: [f32; 4],

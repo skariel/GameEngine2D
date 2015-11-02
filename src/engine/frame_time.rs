@@ -19,6 +19,7 @@ extern crate time;
 
 use time::precise_time_ns;
 
+#[derive(Debug, Copy, Clone)]
 pub struct Time {
     pub curr_time_ms: f64,
     pub dt_ms: f64,

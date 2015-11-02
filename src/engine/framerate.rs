@@ -23,6 +23,7 @@ use time::precise_time_ns;
 Calculate the framerate based on the last `total_frames` frames
 */
 
+#[derive(Debug, Clone)]
 pub struct FrameRate {
     frames_ns: Vec<u64>, // this contains the time for each frame in nano seconds
     frame_f: usize, // final frame index

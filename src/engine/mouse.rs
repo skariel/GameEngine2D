@@ -17,7 +17,7 @@
 
 use engine::window;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 #[allow(float_cmp)]
 pub enum ButtonState {
     Pressed,
@@ -28,7 +28,7 @@ pub enum ButtonState {
     },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum DButtonState {
     Pressed,
     Released,
@@ -37,7 +37,7 @@ pub enum DButtonState {
     Drop,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Button {
     Left,
     Right,
@@ -45,6 +45,7 @@ pub enum Button {
     Other,
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct Mouse {
     pub x: f32,
     pub y: f32,

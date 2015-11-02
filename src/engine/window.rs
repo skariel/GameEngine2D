@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
+#[derive(Debug, Copy, Clone)]
 pub struct Window {
     pub size_pixels_x: u32,
     pub size_pixels_y: u32,

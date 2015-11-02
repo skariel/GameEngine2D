@@ -18,7 +18,7 @@
 use engine;
 use engine::{camera, scoped_threadpool};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum TaskState {
     Remove,
     Keep,

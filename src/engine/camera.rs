@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with GameEngine2D.  If not, see <http://www.gnu.org/licenses/>.
 
+#[derive(Debug, Copy, Clone)]
 pub struct Camera {
     pub x: f32,
     pub y: f32,
